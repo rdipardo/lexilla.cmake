@@ -1,0 +1,34 @@
+language: cpp
+os: linux
+dist: focal
+compiler:
+  - clang
+  - gcc
+script:
+  - cd lexilla/scripts
+  - ./RunTest.sh
+jobs:
+  include:
+    #- os: osx
+      #osx_image: xcode12
+      #before_script:
+        #- cd lexilla/scripts
+        #- python3 HFacer.py
+        #- python3 LexillaGen.py
+      #script:
+         #- cd lexilla/src/Lexilla
+         #- xcodebuild -project Lexilla.xcodeproj
+    - os: windows
+      env:
+        - MSBUILD_PATH="C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\Common7\Tools"
+      install:
+        - choco install -y visualstudio2019buildtools --package-parameters "--add Microsoft.VisualStudio.Component.VC.Tools.x86.x64"
+      script:
+        - cd lexilla
+        - export PATH=$MSBUILD_PATH:$PATH
+        - VsDevCmd.bat
+        - msbuild /nologo /v:m src\Lexilla.vcxproj
+        - msbuild /nologo /v:m test\TestLexers.vcxproj
+        - test\TestLexers.exe
+        - cd scripts
+        - RunTest.bat

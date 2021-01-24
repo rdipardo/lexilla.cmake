@@ -1,0 +1,44 @@
+{8}// x.fs{0}
+{8}// Sample source file to test F# syntax highlighting{0}
+
+{17}[<AutoOpen>]{0}
+{1}module{0} {6}Example{0}
+
+{10}#line 7 "A compiler directive"{0}
+{9}#if DEBUG{0}
+  {1}open{0} {3}System{0}
+  {1}open{0} {3}System{0}.{3}IO{0}
+  {1}open{0} {3}System{0}.{6}Diagnostics{0}
+{9}#endif{0}
+
+{10}# 14 @"See: https://docs.microsoft.com/en-us/dotnet/fsharp/language-reference/strings#remarks"{0}
+{8}// verbatim string{0}
+{1}let{0} {6}xmlFragment1{0} {11}={0} {14}@"<book author=""Milton, John"" title=""Paradise Lost"">"{0}
+
+{8}// triple-quoted string{0}
+{1}let{0} {6}xmlFragment2{0} {11}={0} {14}"""<book author="Milton, John" title="Paradise Lost">"""{0}
+
+{7}(* you need .NET 5.0 to compile this:
+let interpolated = $"I think {3.0 + 0.14} is close to {System.Math.PI}!"
+*){0}
+
+{1}let{0} {14}``a byte literal``{0} {11}={0} {13}'\209'B{0}
+
+{8}// quoted expression{0}
+{1}let{0} {6}expr{0} {11}={0}
+    {16}<@@
+        let foo () = "bar"
+        foo ()
+    @@>{0}
+
+{1}let{0} {6}bigNum{0} {11}({6}unused{11}:{0} {11}'{6}a{11}):{0} {3}float{0} {3}option{0} {11}={0}
+    {3}Seq{0}.{2}init{0} {12}10_000{0} {11}({3}float{0} {11}>>{0} {11}({1}fun{0} {6}i{0} {11}->{0} {6}i{0} {11}+{0} {12}11.{11})){0}
+    {11}|>{0} {11}({3}List{0}.{2}ofSeq{0}
+        {11}>>{0} {3}List{0}.{2}take{0} {12}5{0}
+        {11}>>{0} {3}List{0}.{2}fold{0} {11}(*){0} {12}1.0{11}){0}
+    {11}|>{0} {3}Some{0}
+
+{1}match{0} {6}bigNum{0} {1}(){0} {1}with{0}
+{11}|{0} {3}Some{0} {6}num{0} {11}->{0} {2}sprintf{0} {14}"%.2f > %u"{0} {6}num{0} {14}``a byte literal``{0}
+{11}|{0} {3}None{0} {11}->{0} {2}sprintf{0} {14}"%A"{0} {14}"Have a byte string!"B{0}
+{11}|>{0} {2}printfn{0} {14}"%s"{0}

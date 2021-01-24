@@ -1,0 +1,14 @@
+BasedOnStyle: LLVM
+SortIncludes: false
+IndentWidth: 8
+UseTab: Always
+BreakBeforeBraces: Attach
+Cpp11BracedListStyle: false
+AccessModifierOffset: -8
+AllowShortIfStatementsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: false
+AlignOperands: true
+BreakBeforeBinaryOperators: None
+IndentCaseLabels: true
+AlignTrailingComments: true
+ColumnLimit: 120
