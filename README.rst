@@ -58,8 +58,8 @@ MsBuild
 
     > cd lexilla
     > msbuild /nologo /v:m src\Lexilla.vcxproj
-    > msbuild /nologo /v:m test\TestLexers.vcxproj
-    > test\TestLexers.exe
+    > msbuild /nologo /v:m /p:Configuration=Release test\TestLexers.vcxproj
+    > test\Release\TestLexers.exe
 
 
 License

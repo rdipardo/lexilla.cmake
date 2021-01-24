@@ -16,19 +16,21 @@ jobs:
         #- python3 HFacer.py
         #- python3 LexillaGen.py
       #script:
-         #- cd lexilla/src/Lexilla
-         #- xcodebuild -project Lexilla.xcodeproj
+        #- cd lexilla/src/Lexilla
+        #- xcodebuild -project Lexilla.xcodeproj
+        #- cd ..
+        #- CLANG=1 make clean && make
+        #- cd ../test
+        #- CLANG=1 make && make test
     - os: windows
       env:
-        - MSBUILD_PATH="C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\Common7\Tools"
+        - MSBUILD_PATH="C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\MSBuild\Current\Bin"
       install:
         - choco install -y visualstudio2019buildtools --package-parameters "--add Microsoft.VisualStudio.Component.VC.Tools.x86.x64"
       script:
         - cd lexilla
         - export PATH=$MSBUILD_PATH:$PATH
-        - VsDevCmd.bat
-        - msbuild /nologo /v:m src\Lexilla.vcxproj
-        - msbuild /nologo /v:m test\TestLexers.vcxproj
-        - test\TestLexers.exe
-        - cd scripts
-        - RunTest.bat
+        - msbuild.exe -version
+        - msbuild.exe -noLogo -v:m src/Lexilla.vcxproj
+        - msbuild.exe -noLogo -v:m -p:Configuration=Release test/TestLexers.vcxproj
+        - test/Release/TestLexers.exe
