@@ -9,19 +9,15 @@ script:
   - ./RunTest.sh
 jobs:
   include:
-    #- os: osx
-      #env:
-        #- CLANG=1
-      #osx_image: xcode12
-      #before_script:
-        #- cd lexilla/scripts
-        #- python3 HFacer.py
-        #- python3 LexillaGen.py
-      #script:
-        #- cd lexilla/src/Lexilla
-        #- xcodebuild -project Lexilla.xcodeproj
-        #- cd ../../scripts
-        #- ./RunTest.sh
+    - os: osx
+      env:
+        - CLANG=1
+      osx_image: xcode12
+      script:
+        - cd lexilla/src/Lexilla
+        - xcodebuild -project Lexilla.xcodeproj
+        - cd ../../scripts
+        - ./RunTest.sh
     - os: windows
       install:
         - choco install -y visualstudio2019buildtools --package-parameters "--add Microsoft.VisualStudio.Component.VC.Tools.x86.x64"
