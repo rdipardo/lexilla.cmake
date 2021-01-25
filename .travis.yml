@@ -10,6 +10,8 @@ script:
 jobs:
   include:
     #- os: osx
+      #env:
+        #- CLANG=1
       #osx_image: xcode12
       #before_script:
         #- cd lexilla/scripts
@@ -18,13 +20,12 @@ jobs:
       #script:
         #- cd lexilla/src/Lexilla
         #- xcodebuild -project Lexilla.xcodeproj
-        #- cd ..
-        #- CLANG=1 make clean && make
-        #- cd ../test
-        #- CLANG=1 make && make test
+        #- cd ../../scripts
+        #- ./RunTest.sh
     - os: windows
       install:
         - choco install -y visualstudio2019buildtools --package-parameters "--add Microsoft.VisualStudio.Component.VC.Tools.x86.x64"
       script:
+        - export CXX=cl.exe
         - cd lexilla/scripts
-        - CI=1 ./RunTest.bat
+        - CI=1 CXX=$CXX ./RunTest.bat
