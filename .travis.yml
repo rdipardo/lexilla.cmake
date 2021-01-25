@@ -23,14 +23,8 @@ jobs:
         #- cd ../test
         #- CLANG=1 make && make test
     - os: windows
-      env:
-        - MSBUILD_PATH="C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\MSBuild\Current\Bin"
       install:
         - choco install -y visualstudio2019buildtools --package-parameters "--add Microsoft.VisualStudio.Component.VC.Tools.x86.x64"
       script:
-        - cd lexilla
-        - export PATH=$MSBUILD_PATH:$PATH
-        - msbuild.exe -version
-        - msbuild.exe -noLogo -v:m src/Lexilla.vcxproj
-        - msbuild.exe -noLogo -v:m -p:Configuration=Release test/TestLexers.vcxproj
-        - test/Release/TestLexers.exe
+        - cd lexilla/scripts
+        - CI=1 ./RunTest.bat

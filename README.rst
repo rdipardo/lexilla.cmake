@@ -56,8 +56,9 @@ MsBuild
 
 .. code-block:: doscon
 
-    > cd lexilla
-    > msbuild /nologo /v:m src\Lexilla.vcxproj
+    > cd lexilla\src
+    > nmake /nologo -f lexilla.mak
+    > cd ..
     > msbuild /nologo /v:m /p:Configuration=Release test\TestLexers.vcxproj
     > test\Release\TestLexers.exe
 
