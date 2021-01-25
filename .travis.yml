@@ -12,6 +12,10 @@ jobs:
     - os: osx
       env:
         - CLANG=1
+        - CODE_SIGN_IDENTITY=""
+        - CODE_SIGNING_REQUIRED="NO"
+        - CODE_SIGN_ENTITLEMENTS=""
+        - CODE_SIGNING_ALLOWED="NO"
       osx_image: xcode12
       script:
         - cd lexilla/src/Lexilla

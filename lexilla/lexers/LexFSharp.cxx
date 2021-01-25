@@ -14,6 +14,7 @@
 
 #include <string>
 #include <map>
+#include <charconv>
 
 #include "ILexer.h"
 #include "Scintilla.h"
@@ -108,15 +109,14 @@ struct FSharpString {
 class UnicodeChar {
 	enum class Notation { none, asciiDec, asciiHex, utf16, utf32 };
 
-	int8_t parseDigit(int ch, const int base = 10) {
+	int8_t parseDigit(int ch) {
 		char buf[2] = { 0 };
-		char *end = { 0 };
 		*buf = static_cast<char>(ch);
 		buf[1] = '\0';
-		errno = 0;
-		int8_t result = static_cast<int8_t>(strtol(buf, &end, base));
-		result = errno != 0 ? -1 : result;
-		errno = 0;
+		const std::string number = buf;
+		int8_t result = -1;
+		std::from_chars(number.data(), number.data() + number.size(), result);
+
 		return result;
 	}
 
@@ -367,7 +367,7 @@ void SCI_METHOD LexerFSharp::Lex(Sci_PositionU start, Sci_Position length, int i
 	Sci_PositionU cursor = 0;
 	UnicodeChar uniCh = UnicodeChar();
 	FSharpString fsStr = FSharpString();
-	std::map<int, int> bases = { { 'b', 2 }, { 'o', 8 }, { 'x', 16 } };
+	std::map<char, int> bases = { { 'b', 2 }, { 'o', 8 }, { 'x', 16 } };
 	constexpr Sci_Position MAX_TOKEN_LEN = 64;
 	constexpr int SPACE = ' ';
 	int currentBase = 10;
@@ -412,7 +412,7 @@ void SCI_METHOD LexerFSharp::Lex(Sci_PositionU start, Sci_Position length, int i
 				} else if (IsADigit(sc.ch, currentBase) || (strchr("+-", sc.ch) && IsADigit(sc.chNext))) {
 					state = SCE_FSHARP_NUMBER;
 					if (sc.Match('0')) {
-						const int prefix = MakeLowerCase(sc.chNext);
+						const char prefix = static_cast<char>(MakeLowerCase(sc.chNext));
 						if (bases.find(prefix) != bases.end()) {
 							currentBase = bases[prefix];
 						}
