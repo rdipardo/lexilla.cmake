@@ -68,7 +68,7 @@ License
 The `License.txt <scintilla/License.txt>`_ file describes the conditions
 under which the scintilla and lexilla source code may be distributed.
 
-.. _`lexilla`: https://github.com/ScintillaOrg/lexillatest5
+.. _`lexilla`: https://github.com/ScintillaOrg/lexilla
 .. _`scintilla`: https://sourceforge.net/p/scintilla/code/ci/default/tree
 .. _`Visual Studio 2019 Build Tools`: https://docs.microsoft.com/en-us/cpp/build/vscpp-step-0-installation?view=vs-2019
 .. _`Developer Command Prompt`: https://docs.microsoft.com/en-us/dotnet/framework/tools/developer-command-prompt-for-vs

@@ -19,8 +19,9 @@ let xmlFragment1 = @"<book author=""Milton, John"" title=""Paradise Lost"">"
 let xmlFragment2 = """<book author="Milton, John" title="Paradise Lost">"""
 
 (* you need .NET 5.0 to compile this:
-let interpolated = $"I think {3.0 + 0.14} is close to {System.Math.PI}!"
+  https://docs.microsoft.com/en-us/dotnet/fsharp/whats-new/fsharp-50#string-interpolation
 *)
+let interpolated = $"I think {3.0 + 0.14} is close to {System.Math.PI}!"
 
 let ``a byte literal`` = '\209'B
 

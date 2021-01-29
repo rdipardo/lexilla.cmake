@@ -48,7 +48,7 @@ struct OptionsFSharp {
 	bool fold;
 	bool foldCompact;
 	bool foldComment;
-	bool foldCommentOCamlStyle;
+	bool foldCommentStream;
 	bool foldCommentMultiLine;
 	bool foldPreprocessor;
 	bool foldImports;
@@ -56,7 +56,7 @@ struct OptionsFSharp {
 		fold = true;
 		foldCompact = true;
 		foldComment = true;
-		foldCommentOCamlStyle = true;
+		foldCommentStream = true;
 		foldCommentMultiLine = true;
 		foldPreprocessor = false;
 		foldImports = true;
@@ -70,8 +70,8 @@ struct OptionSetFSharp : public OptionSet<OptionsFSharp> {
 		DefineProperty("fold.comment", &OptionsFSharp::foldComment,
 				   "Setting this option to 0 disables comment folding in F# files.");
 
-		DefineProperty("fold.fsharp.comment.ocaml", &OptionsFSharp::foldCommentOCamlStyle,
-				   "Setting this option to 0 disables folding of OCaml-style comments in F# files when "
+		DefineProperty("fold.fsharp.comment.stream", &OptionsFSharp::foldCommentStream,
+				   "Setting this option to 0 disables folding of ML-style comments in F# files when "
 				   "fold.comment=1.");
 
 		DefineProperty("fold.fsharp.comment.multiline", &OptionsFSharp::foldCommentMultiLine,
@@ -89,9 +89,10 @@ struct OptionSetFSharp : public OptionSet<OptionsFSharp> {
 };
 
 const CharacterSet setOperators = CharacterSet(CharacterSet::setNone, "~^'-+*/%=@|&<>()[]{};,:!?");
-const CharacterSet setClosingTokens = CharacterSet(CharacterSet::setNone, ")]}'\"");
+const CharacterSet setClosingTokens = CharacterSet(CharacterSet::setNone, ")}]");
 const char *numericMetaChars1 = "_Ibflmnosuxy";
 const char *numericMetaChars2 = "lnsy";
+std::map<char, int> numericPrefixes = { { 'b', 2 }, { 'o', 8 }, { 'x', 16 } };
 constexpr Sci_Position ZERO_LENGTH = -1;
 
 struct FSharpString {
@@ -109,14 +110,13 @@ struct FSharpString {
 class UnicodeChar {
 	enum class Notation { none, asciiDec, asciiHex, utf16, utf32 };
 
-	int8_t parseDigit(int ch) {
+	int8_t ParseDigit(int ch) {
 		char buf[2] = { 0 };
 		*buf = static_cast<char>(ch);
 		buf[1] = '\0';
 		const std::string number = buf;
 		int8_t result = -1;
 		std::from_chars(number.data(), number.data() + number.size(), result);
-
 		return result;
 	}
 
@@ -131,7 +131,7 @@ public:
 	UnicodeChar() noexcept = default;
 	UnicodeChar(const int prefix) {
 		if (IsADigit(prefix)) {
-			*asciiDigits = parseDigit(prefix);
+			*asciiDigits = ParseDigit(prefix);
 			if (*asciiDigits >= 0 && *asciiDigits <= 2) {
 				type = Notation::asciiDec;
 				// count first digit as "prefix"
@@ -161,11 +161,11 @@ public:
 		}
 		return *this;
 	}
-	void Parse(const int ch) noexcept {
+	void Parse(const int ch) {
 		invalid = false;
 		switch (type) {
 			case Notation::asciiDec: {
-				int8_t nextDigit = parseDigit(ch);
+				int8_t nextDigit = ParseDigit(ch);
 				maxDigit = (*asciiDigits < 2) ? 9 : (asciiDigits[1] <= 4) ? 9 : 5;
 				if (IsADigit(ch) && asciiDigits[1] <= maxDigit && nextDigit <= maxDigit) {
 					asciiDigits[1] = nextDigit;
@@ -198,6 +198,19 @@ public:
 		return invalid || type == Notation::none || (type != Notation::none && toEnd < 0);
 	}
 };
+
+bool LineContains(LexAccessor &styler, const char *word, const Sci_Position start,
+					const Sci_Position end = ZERO_LENGTH) {
+	bool found = false;
+	Sci_Position limit = (end > ZERO_LENGTH) ? end : start;
+	for (Sci_Position i = start; i < styler.LineEnd(limit); i++) {
+		if (styler.Match(i, word)) {
+			found = true;
+			break;
+		}
+	}
+	return found;
+}
 
 inline bool MatchStreamCommentStart(StyleContext &cxt) {
 	// match (* ... *), but allow point-free usage of the `*` operator,
@@ -246,7 +259,9 @@ inline bool MatchStringStart(StyleContext &cxt) {
 
 inline bool MatchStringEnd(StyleContext &cxt, const FSharpString &fsStr) {
 	return (cxt.Match('`') && cxt.chPrev == '`') ||
-		(fsStr.HasLength() && fsStr.startChar == '"' && cxt.MatchIgnoreCase("\"\"\"")) ||
+		(fsStr.HasLength() &&
+			((fsStr.startChar == '"' && cxt.MatchIgnoreCase("\"\"\"")) ||
+			(fsStr.startChar == '@' && cxt.Match('"') && cxt.chPrev != '"' && cxt.chNext != '"'))) ||
 		(!fsStr.HasLength() && cxt.Match('"') &&
 		(cxt.chPrev != '\\' ||
 		// treat backslashes as char literals in verbatim strings
@@ -259,10 +274,10 @@ inline bool MatchCharStart(StyleContext &cxt) {
 }
 
 inline bool CanEmbedQuotes(StyleContext &cxt) {
-	// allow unescaped double quotes inside triple-quoted strings and white-spaced identifiers:
-	// - https://docs.microsoft.com/en-us/dotnet/fsharp/language-reference/strings#triple-quoted-strings
+	// allow unescaped double quotes inside verbatim and triple-quoted strings, and quoted identifiers:
+	// - https://docs.microsoft.com/en-us/dotnet/fsharp/language-reference/strings
 	// - https://fsharp.org/specs/language-spec/4.1/FSharpSpec-4.1-latest.pdf#page=25&zoom=auto,-98,600
-	return cxt.MatchIgnoreCase("\"\"\"") || cxt.Match('`', '`');
+	return cxt.MatchIgnoreCase("\"\"\"") || cxt.Match('@', '"') || cxt.Match('`', '`');
 }
 
 inline bool IsNumber(StyleContext &cxt, const int base = 10) {
@@ -309,30 +324,28 @@ public:
 	void *SCI_METHOD PrivateCall(int, void *) noexcept override {
 		return nullptr;
 	}
-	const char *SCI_METHOD DescribeWordListSets() noexcept override {
+	const char *SCI_METHOD DescribeWordListSets() override {
 		return optionSet.DescribeWordListSets();
 	}
-	const char *SCI_METHOD PropertyNames() noexcept override {
+	const char *SCI_METHOD PropertyNames() override {
 		return optionSet.PropertyNames();
 	}
-	int SCI_METHOD PropertyType(const char *name) noexcept override {
+	int SCI_METHOD PropertyType(const char *name) override {
 		return optionSet.PropertyType(name);
 	}
-	const char *SCI_METHOD DescribeProperty(const char *name) noexcept override {
+	const char *SCI_METHOD DescribeProperty(const char *name) override {
 		return optionSet.DescribeProperty(name);
 	}
-	const char *SCI_METHOD PropertyGet(const char *key) noexcept override {
+	const char *SCI_METHOD PropertyGet(const char *key) override {
 		return optionSet.PropertyGet(key);
 	}
-	Sci_Position SCI_METHOD PropertySet(const char *key, const char *val) noexcept override;
-	Sci_Position SCI_METHOD WordListSet(int n, const char *wl) noexcept override;
-	void SCI_METHOD Lex(Sci_PositionU start, Sci_Position length, int initStyle,
-						IDocument *pAccess) noexcept override;
-	void SCI_METHOD Fold(Sci_PositionU start, Sci_Position length, int initStyle,
-						IDocument *pAccess) noexcept override;
+	Sci_Position SCI_METHOD PropertySet(const char *key, const char *val) override;
+	Sci_Position SCI_METHOD WordListSet(int n, const char *wl) override;
+	void SCI_METHOD Lex(Sci_PositionU start, Sci_Position length, int initStyle, IDocument *pAccess) override;
+	void SCI_METHOD Fold(Sci_PositionU start, Sci_Position length, int initStyle,IDocument *pAccess) override;
 };
 
-Sci_Position SCI_METHOD LexerFSharp::PropertySet(const char *key, const char *val) noexcept {
+Sci_Position SCI_METHOD LexerFSharp::PropertySet(const char *key, const char *val) {
 	if (optionSet.PropertySet(&options, key, val)) {
 		return 0;
 	}
@@ -340,7 +353,7 @@ Sci_Position SCI_METHOD LexerFSharp::PropertySet(const char *key, const char *va
 	return -1;
 }
 
-Sci_Position SCI_METHOD LexerFSharp::WordListSet(int n, const char *wl) noexcept {
+Sci_Position SCI_METHOD LexerFSharp::WordListSet(int n, const char *wl) {
 	WordList *wordListN = nullptr;
 	Sci_Position firstModification = -1;
 
@@ -360,14 +373,12 @@ Sci_Position SCI_METHOD LexerFSharp::WordListSet(int n, const char *wl) noexcept
 	return firstModification;
 }
 
-void SCI_METHOD LexerFSharp::Lex(Sci_PositionU start, Sci_Position length, int initStyle,
-								IDocument *pAccess) noexcept {
+void SCI_METHOD LexerFSharp::Lex(Sci_PositionU start, Sci_Position length, int initStyle, IDocument *pAccess) {
 	LexAccessor styler(pAccess);
 	StyleContext sc(start, length, initStyle, styler);
 	Sci_PositionU cursor = 0;
 	UnicodeChar uniCh = UnicodeChar();
 	FSharpString fsStr = FSharpString();
-	std::map<char, int> bases = { { 'b', 2 }, { 'o', 8 }, { 'x', 16 } };
 	constexpr Sci_Position MAX_TOKEN_LEN = 64;
 	constexpr int SPACE = ' ';
 	int currentBase = 10;
@@ -397,10 +408,10 @@ void SCI_METHOD LexerFSharp::Lex(Sci_PositionU start, Sci_Position length, int i
 					state = SCE_FSHARP_ATTRIBUTE;
 					sc.Forward();
 				} else if (MatchQuotedExpressionStart(sc)) {
-					state = SCE_FSHARP_EXPR;
+					state = SCE_FSHARP_QUOTATION;
 					sc.Forward();
 				} else if (MatchCharStart(sc)) {
-					state = SCE_FSHARP_CHAR;
+					state = SCE_FSHARP_CHARACTER;
 				} else if (MatchStringStart(sc)) {
 					fsStr.startChar = sc.ch;
 					fsStr.startPos = ZERO_LENGTH;
@@ -408,13 +419,19 @@ void SCI_METHOD LexerFSharp::Lex(Sci_PositionU start, Sci_Position length, int i
 						// double quotes after this position should be non-terminating
 						fsStr.startPos = static_cast<Sci_Position>(sc.currentPos - cursor);
 					}
-					state = SCE_FSHARP_STRING;
+					if (sc.ch == '`') {
+						state = SCE_FSHARP_QUOT_IDENTIFIER;
+					} else if (sc.ch == '@') {
+						state = SCE_FSHARP_VERBATIM;
+					} else {
+						state = SCE_FSHARP_STRING;
+					}
 				} else if (IsADigit(sc.ch, currentBase) || (strchr("+-", sc.ch) && IsADigit(sc.chNext))) {
 					state = SCE_FSHARP_NUMBER;
 					if (sc.Match('0')) {
 						const char prefix = static_cast<char>(MakeLowerCase(sc.chNext));
-						if (bases.find(prefix) != bases.end()) {
-							currentBase = bases[prefix];
+						if (numericPrefixes.find(prefix) != numericPrefixes.end()) {
+							currentBase = numericPrefixes[prefix];
 						}
 					}
 				} else if (setOperators.Contains(sc.ch) &&
@@ -442,13 +459,13 @@ void SCI_METHOD LexerFSharp::Lex(Sci_PositionU start, Sci_Position length, int i
 				break;
 			case SCE_FSHARP_COMMENT:
 			case SCE_FSHARP_ATTRIBUTE:
-			case SCE_FSHARP_EXPR:
+			case SCE_FSHARP_QUOTATION:
 				if (MatchStreamCommentEnd(sc) || MatchTypeAttributeEnd(sc) || MatchQuotedExpressionEnd(sc)) {
 					state = SCE_FSHARP_DEFAULT;
 					colorSpan++;
 				}
 				break;
-			case SCE_FSHARP_CHAR:
+			case SCE_FSHARP_CHARACTER:
 				if (sc.chPrev == '\\' && sc.GetRelative(-2) != '\\') {
 					uniCh = UnicodeChar(sc.ch);
 				} else if (sc.Match('\'') && sc.chPrev != '\\') {
@@ -473,18 +490,19 @@ void SCI_METHOD LexerFSharp::Lex(Sci_PositionU start, Sci_Position length, int i
 				}
 				break;
 			case SCE_FSHARP_STRING:
+			case SCE_FSHARP_VERBATIM:
+			case SCE_FSHARP_QUOT_IDENTIFIER:
 				// continue string, but highlight embedded whitespace
 				if (sc.Match('\\') && sc.chPrev != '\\' && IsASpaceOrTab(sc.chNext)) {
-					state = SCE_FSHARP_WHITE;
+					state = SCE_FSHARP_WHITESPACE;
 				} else if (sc.Match('\\', '\\')) {
 					sc.ch = SPACE;
 				} else if (MatchStringEnd(sc, fsStr)) {
 					const Sci_Position strLen = static_cast<Sci_Position>(sc.currentPos - cursor);
-					// if it looks like the end of a string, find the beginning
+					// backtrack to start of string
 					for (Sci_Position i = -strLen; i < 0; i++) {
 						const int startQuote = sc.GetRelative(i);
-						if (startQuote == '\"' ||
-							(startQuote == '`' && sc.GetRelative(i - 1) == '`')) {
+						if (startQuote == '\"' || (startQuote == '`' && sc.GetRelative(i - 1) == '`')) {
 							// byte array?
 							if (sc.Match('\"', 'B')) {
 								sc.Forward();
@@ -501,7 +519,7 @@ void SCI_METHOD LexerFSharp::Lex(Sci_PositionU start, Sci_Position length, int i
 					}
 				}
 				break;
-			case SCE_FSHARP_WHITE:
+			case SCE_FSHARP_WHITESPACE:
 				if (sc.Match('\\')) {
 					state = SCE_FSHARP_STRING;
 					sc.ch = SPACE;
@@ -527,7 +545,7 @@ void SCI_METHOD LexerFSharp::Lex(Sci_PositionU start, Sci_Position length, int i
 							token[wordLen + i] = static_cast<char>(sc.GetRelative(i));
 						}
 						token[wordLen] = '\0';
-						// don't style snake_case_identifiers
+						// a snake_case_identifier can never be a keyword
 						if (!(sc.Match('_') || sc.GetRelative(-wordLen - 1) == '_')) {
 							for (int i = 0; i < WORDLIST_SIZE; i++) {
 								if (keywords[i].InList(token)) {
@@ -569,7 +587,6 @@ void SCI_METHOD LexerFSharp::Lex(Sci_PositionU start, Sci_Position length, int i
 				} else {
 					advance = false;
 				}
-
 				state = SCE_FSHARP_DEFAULT;
 				break;
 			case SCE_FSHARP_NUMBER:
@@ -594,15 +611,17 @@ void SCI_METHOD LexerFSharp::Lex(Sci_PositionU start, Sci_Position length, int i
 	sc.Complete();
 }
 
-void SCI_METHOD LexerFSharp::Fold(Sci_PositionU start, Sci_Position length, int initStyle,
-								IDocument *pAccess) noexcept {
+void SCI_METHOD LexerFSharp::Fold(Sci_PositionU start, Sci_Position length, int initStyle, IDocument *pAccess) {
 	if (!options.fold) {
 		return;
 	}
 
 	LexAccessor styler(pAccess);
 	Sci_Position lineCurrent = styler.GetLine(start);
-	Sci_PositionU lineStartNext = styler.LineStart(lineCurrent + 1);
+	Sci_Position lineNext = lineCurrent + 1;
+	Sci_PositionU lineStartNext = styler.LineStart(lineNext);
+	Sci_Position commentLinesInFold = ZERO_LENGTH;
+	Sci_Position importsInFold = ZERO_LENGTH;
 	const Sci_PositionU endPos = start + length;
 	int style = initStyle;
 	int styleNext = styler.StyleAt(start);
@@ -610,8 +629,6 @@ void SCI_METHOD LexerFSharp::Fold(Sci_PositionU start, Sci_Position length, int 
 	int levelNext;
 	int levelCurrent = SC_FOLDLEVELBASE;
 	int visibleChars = 0;
-	int8_t commentLinesInFold = -1;
-	int8_t importsInFold = -1;
 
 	if (lineCurrent > 0) {
 		levelCurrent = styler.LevelAt(lineCurrent - 1) >> 0x10;
@@ -628,66 +645,9 @@ void SCI_METHOD LexerFSharp::Fold(Sci_PositionU start, Sci_Position length, int 
 		styleNext = styler.StyleAt(i + 1);
 		chNext = styler.SafeGetCharAt(i + 1);
 
-		if (options.foldPreprocessor && style == SCE_FSHARP_PREPROCESSOR) {
-			if (ch == '#') {
-				Sci_PositionU j = i + 1;
-				while ((j < endPos) && IsASpaceOrTab(styler.SafeGetCharAt(j))) {
-					j++;
-				}
-				if (styler.Match(j, "if")) {
-					levelNext++;
-				} else if (styler.Match(j, "endif")) {
-					levelNext--;
-				}
-			}
-		}
-
-		if (options.foldImports && style == SCE_FSHARP_KEYWORD) {
-			bool haveImport = false;
-
-			// find import declarations at any position
-			for (Sci_Position i = lineCurrent; i < styler.LineEnd(lineCurrent); i++) {
-				if (styler.Match(i, "open")) {
-					haveImport = true;
-					break;
-				}
-			}
-
-			if (haveImport) {
-				bool haveImportList = false;
-
-				for (Sci_Position i = lineStartNext; i < styler.LineEnd(lineCurrent + 1); i++) {
-					if (styler.Match(i, "open")) {
-						haveImportList = true;
-						break;
-					}
-				}
-
-				if (haveImportList) {
-					importsInFold++;
-					if (importsInFold < 1) {
-						levelNext++;
-					}
-				} else {
-					const int8_t offset = importsInFold > 0 ? importsInFold : 1;
-					levelNext -= offset;
-					importsInFold = -1;
-				}
-			}
-		}
-
-		if (options.foldComment && options.foldCommentMultiLine && style == SCE_FSHARP_COMMENTLINE) {
-			if (stylePrev != SCE_FSHARP_COMMENTLINE) {
-				bool haveCommentList = false;
-
-				// find line comments at any position
-				for (Sci_Position i = lineStartNext; i < styler.LineEnd(lineCurrent + 1); i++) {
-					if (styler.Match(i, "//") || styler.Match(i, "///")) {
-						haveCommentList = true;
-						break;
-					}
-				}
-
+		if (options.foldComment) {
+			if (options.foldCommentMultiLine && style == SCE_FSHARP_COMMENTLINE && stylePrev != SCE_FSHARP_COMMENTLINE) {
+				const bool haveCommentList = LineContains(styler, "//", lineStartNext, lineNext);
 				if (haveCommentList) {
 					commentLinesInFold++;
 					if (commentLinesInFold < 1) {
@@ -696,17 +656,38 @@ void SCI_METHOD LexerFSharp::Fold(Sci_PositionU start, Sci_Position length, int 
 				} else {
 					const int8_t offset = commentLinesInFold > 0 ? commentLinesInFold : 1;
 					levelNext -= offset;
-					commentLinesInFold = -1;
+					commentLinesInFold = ZERO_LENGTH;
+				}
+			}
+
+			if (options.foldCommentStream && style == SCE_FSHARP_COMMENT && !inLineComment) {
+				if (stylePrev != SCE_FSHARP_COMMENT) {
+					levelNext++;
+				} else if (styleNext != SCE_FSHARP_COMMENT && !atEOL) {
+					levelNext--;
 				}
 			}
 		}
 
-		if (options.foldComment && options.foldCommentOCamlStyle && style == SCE_FSHARP_COMMENT &&
-		    !inLineComment) {
-			if (stylePrev != SCE_FSHARP_COMMENT) {
+		if (options.foldPreprocessor && style == SCE_FSHARP_PREPROCESSOR) {
+			if (styler.Match(i, "#if")) {
 				levelNext++;
-			} else if (styleNext != SCE_FSHARP_COMMENT && !atEOL) {
+			} else if (styler.Match(i, "#endif")) {
 				levelNext--;
+			}
+		}
+
+		if (options.foldImports && style == SCE_FSHARP_KEYWORD && LineContains(styler, "open", lineCurrent)) {
+			const bool haveImportList = LineContains(styler, "open", lineStartNext, lineNext);
+			if (haveImportList) {
+				importsInFold++;
+				if (importsInFold < 1) {
+					levelNext++;
+				}
+			} else {
+				const int8_t offset = importsInFold > 0 ? importsInFold : 1;
+				levelNext -= offset;
+				importsInFold = ZERO_LENGTH;
 			}
 		}
 
@@ -717,6 +698,7 @@ void SCI_METHOD LexerFSharp::Fold(Sci_PositionU start, Sci_Position length, int 
 		if (atEOL || (i == endPos - 1)) {
 			int levelUse = levelCurrent;
 			int lev = levelUse | levelNext << 16;
+
 			if (visibleChars == 0 && options.foldCompact) {
 				lev |= SC_FOLDLEVELWHITEFLAG;
 			}
@@ -726,15 +708,17 @@ void SCI_METHOD LexerFSharp::Fold(Sci_PositionU start, Sci_Position length, int 
 			if (lev != styler.LevelAt(lineCurrent)) {
 				styler.SetLevel(lineCurrent, lev);
 			}
-			lineCurrent++;
-			lineStartNext = styler.LineStart(lineCurrent + 1);
-			levelCurrent = levelNext;
-			if (atEOL && (i == static_cast<Sci_PositionU>(styler.Length() - 1))) {
-				styler.SetLevel(lineCurrent,
-						(levelCurrent | levelCurrent << 16) | SC_FOLDLEVELWHITEFLAG);
-			}
+
 			visibleChars = 0;
 			inLineComment = false;
+			lineCurrent++;
+			lineNext = lineCurrent + 1;
+			lineStartNext = styler.LineStart(lineNext);
+			levelCurrent = levelNext;
+
+			if (atEOL && (i == static_cast<Sci_PositionU>(styler.Length() - 1))) {
+				styler.SetLevel(lineCurrent, (levelCurrent | levelCurrent << 16) | SC_FOLDLEVELWHITEFLAG);
+			}
 		}
 	}
 }
