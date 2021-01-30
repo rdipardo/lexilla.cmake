@@ -13,7 +13,7 @@
 
 {11}# 14 @"See: https://docs.microsoft.com/en-us/dotnet/fsharp/language-reference/strings#remarks"{0}
 {9}// verbatim string{0}
-{1}let{0} {6}xmlFragment1{0} {12}={0} {16}@"<book author="{15}"Milton, John"" title=""Paradise Lost"">"{0}
+{1}let{0} {6}xmlFragment1{0} {12}={0} {16}@"<book author=""Milton, John"" title=""Paradise Lost"">"{0}
 
 {9}// triple-quoted string{0}
 {1}let{0} {6}xmlFragment2{0} {12}={0} {15}"""<book author="Milton, John" title="Paradise Lost">"""{0}

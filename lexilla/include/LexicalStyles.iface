@@ -140,7 +140,7 @@ val SCLEX_X12=128
 val SCLEX_DATAFLEX=129
 val SCLEX_HOLLYWOOD=130
 val SCLEX_RAKU=131
-val SCLEX_FSHARP=0xF5
+val SCLEX_FSHARP=245
 
 # When a lexer specifies its language as SCLEX_AUTOMATIC it receives a
 # value assigned in sequence from SCLEX_AUTOMATIC+1.

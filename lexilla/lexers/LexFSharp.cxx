@@ -258,14 +258,24 @@ inline bool MatchStringStart(StyleContext &cxt) {
 }
 
 inline bool MatchStringEnd(StyleContext &cxt, const FSharpString &fsStr) {
-	return (cxt.Match('`') && cxt.chPrev == '`') ||
-		(fsStr.HasLength() &&
-			((fsStr.startChar == '"' && cxt.MatchIgnoreCase("\"\"\"")) ||
-			(fsStr.startChar == '@' && cxt.Match('"') && cxt.chPrev != '"' && cxt.chNext != '"'))) ||
+	return (fsStr.HasLength() &&
+		// end of quoted identifier?
+		((cxt.Match('`') && cxt.chPrev == '`') ||
+		// end of triple-quoted-string?
+		(fsStr.startChar == '"' && cxt.MatchIgnoreCase("\"\"\"")) ||
+		// end of verbatim string?
+		(fsStr.startChar == '@' &&
+			// embedded quotes must be in pairs
+			cxt.Match('"') && cxt.chNext != '"' &&
+			(cxt.chPrev != '"' || (cxt.chPrev == '"' &&
+				// empty verbatim string?
+				(cxt.GetRelative(-2) == '@' ||
+				// pair of quotes at end of string?
+				(cxt.GetRelative(-2) == '"' && cxt.GetRelative(-3) != '@'))))))) ||
 		(!fsStr.HasLength() && cxt.Match('"') &&
-		(cxt.chPrev != '\\' ||
-		// treat backslashes as char literals in verbatim strings
-		(fsStr.startChar == '@' && cxt.chPrev == '\\')));
+			(cxt.chPrev != '\\' ||
+			// treat backslashes as char literals in verbatim strings
+			(fsStr.startChar == '@' && cxt.chPrev == '\\')));
 }
 
 inline bool MatchCharStart(StyleContext &cxt) {
@@ -350,7 +360,7 @@ Sci_Position SCI_METHOD LexerFSharp::PropertySet(const char *key, const char *va
 		return 0;
 	}
 
-	return -1;
+	return ZERO_LENGTH;
 }
 
 Sci_Position SCI_METHOD LexerFSharp::WordListSet(int n, const char *wl) {
@@ -532,7 +542,7 @@ void SCI_METHOD LexerFSharp::Lex(Sci_PositionU start, Sci_Position length, int i
 						state = static_cast<int>(styler.StyleAt(p));
 					}
 					sc.ChangeState(state);
-					state = -1;
+					state = ZERO_LENGTH;
 				}
 				break;
 			case SCE_FSHARP_IDENTIFIER:
