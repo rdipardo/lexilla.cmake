@@ -12,16 +12,8 @@ jobs:
     - os: osx
       env:
         - CLANG=1
-        #- CODE_SIGN_IDENTITY=""
-        #- CODE_SIGNING_REQUIRED="NO"
-        #- CODE_SIGN_ENTITLEMENTS=""
-        #- CODE_SIGNING_ALLOWED="NO"
-        #- XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY=""
       osx_image: xcode12
       script:
-        #- cd lexilla/src/Lexilla
-        #- xcodebuild -project Lexilla.xcodeproj
-        #- cd ../../scripts
         - cd lexilla/scripts
         - ./RunTest.sh
     - os: windows
