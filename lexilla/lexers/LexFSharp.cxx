@@ -1,8 +1,7 @@
-// Scintilla source code edit control
 /**
  * @file LexFSharp.cxx
- * Lexer for F#
- * Copyright 2021 by Robert Di Pardo <dipardo.r@gmail.com>
+ * Lexer for F# 5.0
+ * Copyright (c) 2021 Robert Di Pardo <dipardo.r@gmail.com>
  * Parts of LexerFSharp::Lex were adapted from LexCaml.cxx by Robert Roessler ("RR").
  * Parts of LexerFSharp::Fold were adapted from LexCPP.cxx by Neil Hodgson and Udo Lechner.
  * The License.txt file describes the conditions under which this software may be distributed.
@@ -31,7 +30,7 @@
 
 using namespace Scintilla;
 
-static const char *lexerName = "fsharp";
+static const char *const lexerName = "fsharp";
 static constexpr int WORDLIST_SIZE = 5;
 static const char *const fsharpWordLists[] = {
 	"standard language keywords",
@@ -40,6 +39,9 @@ static const char *const fsharpWordLists[] = {
 	"optional",
 	"optional",
 	nullptr,
+};
+static constexpr int keywordClasses[] = {
+	SCE_FSHARP_KEYWORD, SCE_FSHARP_KEYWORD2, SCE_FSHARP_KEYWORD3, SCE_FSHARP_KEYWORD4, SCE_FSHARP_KEYWORD5,
 };
 
 namespace {
@@ -90,9 +92,9 @@ struct OptionSetFSharp : public OptionSet<OptionsFSharp> {
 
 const CharacterSet setOperators = CharacterSet(CharacterSet::setNone, "~^'-+*/%=@|&<>()[]{};,:!?");
 const CharacterSet setClosingTokens = CharacterSet(CharacterSet::setNone, ")}]");
-const char *numericMetaChars1 = "_Ibflmnosuxy";
-const char *numericMetaChars2 = "lnsy";
-std::map<char, int> numericPrefixes = { { 'b', 2 }, { 'o', 8 }, { 'x', 16 } };
+const char *const numericMetaChars1 = "_Ibflmnosuxy";
+const char *const numericMetaChars2 = "lnsy";
+std::map<int, int> numericPrefixes = { { 'b', 2 }, { 'o', 8 }, { 'x', 16 } };
 constexpr Sci_Position ZERO_LENGTH = -1;
 
 struct FSharpString {
@@ -107,19 +109,10 @@ struct FSharpString {
 	}
 };
 
+int8_t ParseDigit(int ch) noexcept;
+
 class UnicodeChar {
 	enum class Notation { none, asciiDec, asciiHex, utf16, utf32 };
-
-	int8_t ParseDigit(int ch) {
-		char buf[2] = { 0 };
-		*buf = static_cast<char>(ch);
-		buf[1] = '\0';
-		const std::string number = buf;
-		int8_t result = -1;
-		std::from_chars(number.data(), number.data() + number.size(), result);
-		return result;
-	}
-
 	Notation type = Notation::none;
 	// single-byte Unicode char (000 - 255)
 	int8_t asciiDigits[3] = { 0 };
@@ -199,19 +192,6 @@ public:
 	}
 };
 
-bool LineContains(LexAccessor &styler, const char *word, const Sci_Position start,
-					const Sci_Position end = ZERO_LENGTH) {
-	bool found = false;
-	Sci_Position limit = (end > ZERO_LENGTH) ? end : start;
-	for (Sci_Position i = start; i < styler.LineEnd(limit); i++) {
-		if (styler.Match(i, word)) {
-			found = true;
-			break;
-		}
-	}
-	return found;
-}
-
 inline bool MatchStreamCommentStart(StyleContext &cxt) {
 	// match (* ... *), but allow point-free usage of the `*` operator,
 	// e.g.  List.fold (*) 1 [ 1; 2; 3 ]
@@ -219,7 +199,7 @@ inline bool MatchStreamCommentStart(StyleContext &cxt) {
 }
 
 inline bool MatchStreamCommentEnd(StyleContext &cxt) {
-	return cxt.Match(')') && cxt.chPrev == '*';
+	return (cxt.ch == ')' && cxt.chPrev == '*');
 }
 
 inline bool MatchLineComment(StyleContext &cxt) {
@@ -230,11 +210,11 @@ inline bool MatchLineComment(StyleContext &cxt) {
 
 inline bool MatchLineNumberStart(StyleContext &cxt) {
 	return cxt.atLineStart && (cxt.MatchIgnoreCase("#line") ||
-		(cxt.Match('#') && (IsADigit(cxt.chNext) || IsADigit(cxt.GetRelative(2)))));
+		(cxt.ch == '#' && (IsADigit(cxt.chNext) || IsADigit(cxt.GetRelative(2)))));
 }
 
 inline bool MatchPPDirectiveStart(StyleContext &cxt) {
-	return cxt.atLineStart && cxt.Match('#') && iswordstart(cxt.chNext);
+	return (cxt.atLineStart && cxt.ch == '#' && iswordstart(cxt.chNext));
 }
 
 inline bool MatchTypeAttributeStart(StyleContext &cxt) {
@@ -242,7 +222,7 @@ inline bool MatchTypeAttributeStart(StyleContext &cxt) {
 }
 
 inline bool MatchTypeAttributeEnd(StyleContext &cxt) {
-	return cxt.Match(']') && cxt.chPrev == '>';
+	return (cxt.ch == ']' && cxt.chPrev == '>');
 }
 
 inline bool MatchQuotedExpressionStart(StyleContext &cxt) {
@@ -250,37 +230,37 @@ inline bool MatchQuotedExpressionStart(StyleContext &cxt) {
 }
 
 inline bool MatchQuotedExpressionEnd(StyleContext &cxt) {
-	return cxt.Match('>') && cxt.chPrev == '@';
+	return (cxt.ch == '>' && cxt.chPrev == '@');
 }
 
 inline bool MatchStringStart(StyleContext &cxt) {
-	return cxt.Match('"') || cxt.Match('@', '"') || cxt.Match('$', '"') || cxt.Match('`', '`');
+	return (cxt.ch == '"' || cxt.Match('@', '"') || cxt.Match('$', '"') || cxt.Match('`', '`'));
 }
 
 inline bool MatchStringEnd(StyleContext &cxt, const FSharpString &fsStr) {
 	return (fsStr.HasLength() &&
 		// end of quoted identifier?
-		((cxt.Match('`') && cxt.chPrev == '`') ||
+		((cxt.ch == '`' && cxt.chPrev == '`') ||
 		// end of triple-quoted-string?
 		(fsStr.startChar == '"' && cxt.MatchIgnoreCase("\"\"\"")) ||
 		// end of verbatim string?
 		(fsStr.startChar == '@' &&
 			// embedded quotes must be in pairs
-			cxt.Match('"') && cxt.chNext != '"' &&
+			cxt.ch == '"' && cxt.chNext != '"' &&
 			(cxt.chPrev != '"' || (cxt.chPrev == '"' &&
 				// empty verbatim string?
 				(cxt.GetRelative(-2) == '@' ||
 				// pair of quotes at end of string?
 				(cxt.GetRelative(-2) == '"' && cxt.GetRelative(-3) != '@'))))))) ||
-		(!fsStr.HasLength() && cxt.Match('"') &&
+		(!fsStr.HasLength() && cxt.ch == '"' &&
 			(cxt.chPrev != '\\' ||
 			// treat backslashes as char literals in verbatim strings
 			(fsStr.startChar == '@' && cxt.chPrev == '\\')));
 }
 
-inline bool MatchCharStart(StyleContext &cxt) {
+inline bool MatchCharacterStart(StyleContext &cxt) {
 	// don't style generic type parameters: 'a, 'b, 'T, etc.
-	return cxt.Match('\'') && !(cxt.chPrev == ':' || cxt.GetRelative(-2) == ':');
+	return (cxt.ch == '\'' && !(cxt.chPrev == ':' || cxt.GetRelative(-2) == ':'));
 }
 
 inline bool CanEmbedQuotes(StyleContext &cxt) {
@@ -349,23 +329,20 @@ public:
 	const char *SCI_METHOD PropertyGet(const char *key) override {
 		return optionSet.PropertyGet(key);
 	}
-	Sci_Position SCI_METHOD PropertySet(const char *key, const char *val) override;
+	Sci_Position SCI_METHOD PropertySet(const char *key, const char *val) override {
+		if (optionSet.PropertySet(&options, key, val)) {
+			return 0;
+		}
+		return ZERO_LENGTH;
+	}
 	Sci_Position SCI_METHOD WordListSet(int n, const char *wl) override;
 	void SCI_METHOD Lex(Sci_PositionU start, Sci_Position length, int initStyle, IDocument *pAccess) override;
 	void SCI_METHOD Fold(Sci_PositionU start, Sci_Position length, int initStyle,IDocument *pAccess) override;
 };
 
-Sci_Position SCI_METHOD LexerFSharp::PropertySet(const char *key, const char *val) {
-	if (optionSet.PropertySet(&options, key, val)) {
-		return 0;
-	}
-
-	return ZERO_LENGTH;
-}
-
 Sci_Position SCI_METHOD LexerFSharp::WordListSet(int n, const char *wl) {
 	WordList *wordListN = nullptr;
-	Sci_Position firstModification = -1;
+	Sci_Position firstModification = ZERO_LENGTH;
 
 	if (n < WORDLIST_SIZE) {
 		wordListN = &keywords[n];
@@ -379,7 +356,6 @@ Sci_Position SCI_METHOD LexerFSharp::WordListSet(int n, const char *wl) {
 			firstModification = 0;
 		}
 	}
-
 	return firstModification;
 }
 
@@ -420,7 +396,7 @@ void SCI_METHOD LexerFSharp::Lex(Sci_PositionU start, Sci_Position length, int i
 				} else if (MatchQuotedExpressionStart(sc)) {
 					state = SCE_FSHARP_QUOTATION;
 					sc.Forward();
-				} else if (MatchCharStart(sc)) {
+				} else if (MatchCharacterStart(sc)) {
 					state = SCE_FSHARP_CHARACTER;
 				} else if (MatchStringStart(sc)) {
 					fsStr.startChar = sc.ch;
@@ -438,18 +414,18 @@ void SCI_METHOD LexerFSharp::Lex(Sci_PositionU start, Sci_Position length, int i
 					}
 				} else if (IsADigit(sc.ch, currentBase) || (strchr("+-", sc.ch) && IsADigit(sc.chNext))) {
 					state = SCE_FSHARP_NUMBER;
-					if (sc.Match('0')) {
-						const char prefix = static_cast<char>(MakeLowerCase(sc.chNext));
+					if (sc.ch == '0') {
+						const int prefix = sc.chNext;
 						if (numericPrefixes.find(prefix) != numericPrefixes.end()) {
 							currentBase = numericPrefixes[prefix];
 						}
 					}
 				} else if (setOperators.Contains(sc.ch) &&
 					   // don't use operator style in async keywords (e.g. `return!`)
-					   !(sc.Match('!') && iswordchar(sc.chPrev)) &&
+					   !(sc.ch == '!' && iswordstart(sc.chPrev)) &&
 					   // don't use operator style in member access, array/string indexing
-					   !(sc.Match('.') && (sc.chPrev == '\"' || iswordchar(sc.chPrev)) &&
-						 (iswordchar(sc.chNext) || sc.chNext == '['))) {
+					   !(sc.ch == '.' && (sc.chPrev == '\"' || iswordstart(sc.chPrev)) &&
+						 (iswordstart(sc.chNext) || sc.chNext == '['))) {
 					state = SCE_FSHARP_OPERATOR;
 				} else if (iswordstart(sc.ch)) {
 					state = SCE_FSHARP_IDENTIFIER;
@@ -462,7 +438,7 @@ void SCI_METHOD LexerFSharp::Lex(Sci_PositionU start, Sci_Position length, int i
 			case SCE_FSHARP_COMMENTLINE:
 				// TestLexers.cxx will warn about splitting styles across CRLF line endings
 				// without the second condition
-				if (sc.atLineEnd || sc.Match('\r')) {
+				if (sc.atLineEnd || sc.ch == '\r') {
 					state = SCE_FSHARP_DEFAULT;
 					advance = false;
 				}
@@ -478,7 +454,8 @@ void SCI_METHOD LexerFSharp::Lex(Sci_PositionU start, Sci_Position length, int i
 			case SCE_FSHARP_CHARACTER:
 				if (sc.chPrev == '\\' && sc.GetRelative(-2) != '\\') {
 					uniCh = UnicodeChar(sc.ch);
-				} else if (sc.Match('\'') && sc.chPrev != '\\') {
+				} else if (sc.ch == '\'' &&
+					   (sc.chPrev != '\\' || (sc.chPrev = '\\' && sc.GetRelative(-2) == '\\'))) {
 					// byte literal?
 					if (sc.Match('\'', 'B')) {
 						sc.Forward();
@@ -503,7 +480,7 @@ void SCI_METHOD LexerFSharp::Lex(Sci_PositionU start, Sci_Position length, int i
 			case SCE_FSHARP_VERBATIM:
 			case SCE_FSHARP_QUOT_IDENTIFIER:
 				// continue string, but highlight embedded whitespace
-				if (sc.Match('\\') && sc.chPrev != '\\' && IsASpaceOrTab(sc.chNext)) {
+				if (sc.ch == '\\' && sc.chPrev != '\\' && IsASpaceOrTab(sc.chNext)) {
 					state = SCE_FSHARP_WHITESPACE;
 				} else if (sc.Match('\\', '\\')) {
 					sc.ch = SPACE;
@@ -530,7 +507,7 @@ void SCI_METHOD LexerFSharp::Lex(Sci_PositionU start, Sci_Position length, int i
 				}
 				break;
 			case SCE_FSHARP_WHITESPACE:
-				if (sc.Match('\\')) {
+				if (sc.ch == '\\') {
 					state = SCE_FSHARP_STRING;
 					sc.ch = SPACE;
 					styler.ColourTo((colorSpan + 1), sc.state);
@@ -542,11 +519,11 @@ void SCI_METHOD LexerFSharp::Lex(Sci_PositionU start, Sci_Position length, int i
 						state = static_cast<int>(styler.StyleAt(p));
 					}
 					sc.ChangeState(state);
-					state = ZERO_LENGTH;
+					state = -1;
 				}
 				break;
 			case SCE_FSHARP_IDENTIFIER:
-				if (!(IsAlphaNumeric(sc.ch) || sc.Match('\''))) {
+				if (!(iswordstart(sc.ch) || sc.ch == '\'')) {
 					const Sci_Position wordLen = static_cast<Sci_Position>(sc.currentPos - cursor);
 					if (wordLen < MAX_TOKEN_LEN) {
 						// wordLength is believable as keyword, [re-]construct token - RR
@@ -556,29 +533,10 @@ void SCI_METHOD LexerFSharp::Lex(Sci_PositionU start, Sci_Position length, int i
 						}
 						token[wordLen] = '\0';
 						// a snake_case_identifier can never be a keyword
-						if (!(sc.Match('_') || sc.GetRelative(-wordLen - 1) == '_')) {
+						if (sc.ch != '_' || sc.GetRelative(-wordLen - 1) == '_') {
 							for (int i = 0; i < WORDLIST_SIZE; i++) {
 								if (keywords[i].InList(token)) {
-									switch (i) {
-										case 0:
-											sc.ChangeState(SCE_FSHARP_KEYWORD);
-											break;
-										case 1:
-											sc.ChangeState(SCE_FSHARP_KEYWORD2);
-											break;
-										case 2:
-											sc.ChangeState(SCE_FSHARP_KEYWORD3);
-											break;
-										case 3:
-											sc.ChangeState(SCE_FSHARP_KEYWORD4);
-											break;
-										case 4:
-											sc.ChangeState(SCE_FSHARP_KEYWORD5);
-											break;
-										default:
-											sc.ChangeState(SCE_FSHARP_KEYWORD);
-											break;
-									}
+									sc.ChangeState(keywordClasses[i]);
 									break;
 								}
 							}
@@ -591,7 +549,7 @@ void SCI_METHOD LexerFSharp::Lex(Sci_PositionU start, Sci_Position length, int i
 			case SCE_FSHARP_OPERATOR:
 				// special-case "()" and "[]" tokens as KEYWORDS - RR
 				if (setClosingTokens.Contains(sc.ch) &&
-					((sc.Match(')') && sc.chPrev == '(') || (sc.Match(']') && sc.chPrev == '['))) {
+					((sc.ch == ')' && sc.chPrev == '(') || (sc.ch == ']' && sc.chPrev == '['))) {
 					sc.ChangeState(SCE_FSHARP_KEYWORD);
 					colorSpan++;
 				} else {
@@ -620,6 +578,8 @@ void SCI_METHOD LexerFSharp::Lex(Sci_PositionU start, Sci_Position length, int i
 
 	sc.Complete();
 }
+
+bool LineContains(LexAccessor &styler, const char *word, const Sci_Position start, const Sci_Position end = 1);
 
 void SCI_METHOD LexerFSharp::Fold(Sci_PositionU start, Sci_Position length, int initStyle, IDocument *pAccess) {
 	if (!options.fold) {
@@ -731,6 +691,28 @@ void SCI_METHOD LexerFSharp::Fold(Sci_PositionU start, Sci_Position length, int 
 			}
 		}
 	}
+}
+
+bool LineContains(LexAccessor &styler, const char *word, const Sci_Position start, const Sci_Position end) {
+	bool found = false;
+	Sci_Position limit = (end > 1) ? end : start;
+	for (Sci_Position i = start; i < styler.LineEnd(limit); i++) {
+		if (styler.Match(i, word)) {
+			found = true;
+			break;
+		}
+	}
+	return found;
+}
+
+int8_t ParseDigit(int ch) noexcept {
+	char buf[2] = { 0 };
+	*buf = static_cast<char>(ch);
+	buf[1] = '\0';
+	const std::string number = buf;
+	int8_t result = -1;
+	std::from_chars(number.data(), number.data() + number.size(), result);
+	return result;
 }
 } // namespace
 
