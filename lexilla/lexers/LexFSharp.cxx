@@ -9,7 +9,6 @@
 // clang-format off
 #include <cstdlib>
 #include <cassert>
-#include <cstring>
 
 #include <string>
 #include <map>
@@ -34,7 +33,7 @@ static const char *const lexerName = "fsharp";
 static constexpr int WORDLIST_SIZE = 5;
 static const char *const fsharpWordLists[] = {
 	"standard language keywords",
-	"core functions, including most functions in the FSharp.Collections namespace",
+	"core functions, including those in the FSharp.Collections namespace",
 	"built-in types, core namespaces, modules",
 	"optional",
 	"optional",
@@ -92,8 +91,8 @@ struct OptionSetFSharp : public OptionSet<OptionsFSharp> {
 
 const CharacterSet setOperators = CharacterSet(CharacterSet::setNone, "~^'-+*/%=@|&<>()[]{};,:!?");
 const CharacterSet setClosingTokens = CharacterSet(CharacterSet::setNone, ")}]");
-const char *const numericMetaChars1 = "_Ibflmnosuxy";
-const char *const numericMetaChars2 = "lnsy";
+const CharacterSet numericMetaChars1 = CharacterSet(CharacterSet::setNone, "_IbeEflmnosuxy");
+const CharacterSet numericMetaChars2 = CharacterSet(CharacterSet::setNone,"lnsy");
 std::map<int, int> numericPrefixes = { { 'b', 2 }, { 'o', 8 }, { 'x', 16 } };
 constexpr Sci_Position ZERO_LENGTH = -1;
 
@@ -130,7 +129,7 @@ public:
 				// count first digit as "prefix"
 				toEnd = 2;
 			}
-		} else if (strchr("xuU", prefix)) {
+		} else if (prefix == 'x' || prefix == 'u' || prefix == 'U') {
 			switch (prefix) {
 				case 'x':
 					type = Notation::asciiHex;
@@ -271,16 +270,13 @@ inline bool CanEmbedQuotes(StyleContext &cxt) {
 }
 
 inline bool IsNumber(StyleContext &cxt, const int base = 10) {
-	return IsADigit(cxt.ch, base) || (IsADigit(cxt.chPrev, base) && strchr(numericMetaChars1, cxt.ch)) ||
-		(IsADigit(cxt.GetRelative(-2), base) && strchr(numericMetaChars2, cxt.ch));
-}
-
-inline bool IsExponent(StyleContext &cxt) {
-	return strchr("eE", cxt.chPrev) && (strchr("+-", cxt.ch) || IsADigit(cxt.ch));
+	return IsADigit(cxt.ch, base) || (IsADigit(cxt.chPrev, base) && numericMetaChars1.Contains(cxt.ch)) ||
+		(IsADigit(cxt.GetRelative(-2), base) && numericMetaChars2.Contains(cxt.ch));
 }
 
 inline bool IsFloat(StyleContext &cxt) {
-	return IsExponent(cxt) || (cxt.ch == '.' && IsADigit(cxt.chPrev));
+	return (cxt.ch == '.' && IsADigit(cxt.chPrev)) ||
+		((cxt.ch == '+' || cxt.ch == '-' ) && IsADigit(cxt.chNext));
 }
 
 class LexerFSharp : public DefaultLexer {
@@ -365,7 +361,7 @@ void SCI_METHOD LexerFSharp::Lex(Sci_PositionU start, Sci_Position length, int i
 	Sci_PositionU cursor = 0;
 	UnicodeChar uniCh = UnicodeChar();
 	FSharpString fsStr = FSharpString();
-	constexpr Sci_Position MAX_TOKEN_LEN = 64;
+	constexpr Sci_Position MAX_WORD_LEN = 64;
 	constexpr int SPACE = ' ';
 	int currentBase = 10;
 
@@ -412,7 +408,8 @@ void SCI_METHOD LexerFSharp::Lex(Sci_PositionU start, Sci_Position length, int i
 					} else {
 						state = SCE_FSHARP_STRING;
 					}
-				} else if (IsADigit(sc.ch, currentBase) || (strchr("+-", sc.ch) && IsADigit(sc.chNext))) {
+				} else if (IsADigit(sc.ch, currentBase) ||
+					   ((sc.ch == '+' || sc.ch == '-') && IsADigit(sc.chNext))) {
 					state = SCE_FSHARP_NUMBER;
 					if (sc.ch == '0') {
 						const int prefix = sc.chNext;
@@ -425,7 +422,7 @@ void SCI_METHOD LexerFSharp::Lex(Sci_PositionU start, Sci_Position length, int i
 					   !(sc.ch == '!' && iswordstart(sc.chPrev)) &&
 					   // don't use operator style in member access, array/string indexing
 					   !(sc.ch == '.' && (sc.chPrev == '\"' || iswordstart(sc.chPrev)) &&
-						 (iswordstart(sc.chNext) || sc.chNext == '['))) {
+					     (iswordstart(sc.chNext) || sc.chNext == '['))) {
 					state = SCE_FSHARP_OPERATOR;
 				} else if (iswordstart(sc.ch)) {
 					state = SCE_FSHARP_IDENTIFIER;
@@ -455,7 +452,8 @@ void SCI_METHOD LexerFSharp::Lex(Sci_PositionU start, Sci_Position length, int i
 				if (sc.chPrev == '\\' && sc.GetRelative(-2) != '\\') {
 					uniCh = UnicodeChar(sc.ch);
 				} else if (sc.ch == '\'' &&
-					   (sc.chPrev != '\\' || (sc.chPrev = '\\' && sc.GetRelative(-2) == '\\'))) {
+					   ((sc.chPrev == ' ' && sc.GetRelative(-2) == '\'') || sc.chPrev != '\\' ||
+						(sc.chPrev == '\\' && sc.GetRelative(-2) == '\\'))) {
 					// byte literal?
 					if (sc.Match('\'', 'B')) {
 						sc.Forward();
@@ -479,12 +477,7 @@ void SCI_METHOD LexerFSharp::Lex(Sci_PositionU start, Sci_Position length, int i
 			case SCE_FSHARP_STRING:
 			case SCE_FSHARP_VERBATIM:
 			case SCE_FSHARP_QUOT_IDENTIFIER:
-				// continue string, but highlight embedded whitespace
-				if (sc.ch == '\\' && sc.chPrev != '\\' && IsASpaceOrTab(sc.chNext)) {
-					state = SCE_FSHARP_WHITESPACE;
-				} else if (sc.Match('\\', '\\')) {
-					sc.ch = SPACE;
-				} else if (MatchStringEnd(sc, fsStr)) {
+				if (MatchStringEnd(sc, fsStr)) {
 					const Sci_Position strLen = static_cast<Sci_Position>(sc.currentPos - cursor);
 					// backtrack to start of string
 					for (Sci_Position i = -strLen; i < 0; i++) {
@@ -506,28 +499,12 @@ void SCI_METHOD LexerFSharp::Lex(Sci_PositionU start, Sci_Position length, int i
 					}
 				}
 				break;
-			case SCE_FSHARP_WHITESPACE:
-				if (sc.ch == '\\') {
-					state = SCE_FSHARP_STRING;
-					sc.ch = SPACE;
-					styler.ColourTo((colorSpan + 1), sc.state);
-					styler.Flush();
-					Sci_Position p = static_cast<Sci_Position>(colorSpan - 1);
-					for (; p >= 0 && styler.StyleAt(p) == sc.state; p--)
-						;
-					if (p >= 0) {
-						state = static_cast<int>(styler.StyleAt(p));
-					}
-					sc.ChangeState(state);
-					state = -1;
-				}
-				break;
 			case SCE_FSHARP_IDENTIFIER:
 				if (!(iswordstart(sc.ch) || sc.ch == '\'')) {
 					const Sci_Position wordLen = static_cast<Sci_Position>(sc.currentPos - cursor);
-					if (wordLen < MAX_TOKEN_LEN) {
+					if (wordLen < MAX_WORD_LEN) {
 						// wordLength is believable as keyword, [re-]construct token - RR
-						char token[MAX_TOKEN_LEN] = { 0 };
+						char token[MAX_WORD_LEN] = { 0 };
 						for (Sci_Position i = -wordLen; i < 0; i++) {
 							token[wordLen + i] = static_cast<char>(sc.GetRelative(i));
 						}
@@ -558,7 +535,7 @@ void SCI_METHOD LexerFSharp::Lex(Sci_PositionU start, Sci_Position length, int i
 				state = SCE_FSHARP_DEFAULT;
 				break;
 			case SCE_FSHARP_NUMBER:
-				state = (IsNumber(sc, currentBase) || IsExponent(sc) || IsFloat(sc))
+				state = (IsNumber(sc, currentBase) || IsFloat(sc))
 						? SCE_FSHARP_NUMBER
 						// change style even when operators aren't spaced
 						: setOperators.Contains(sc.ch) ? SCE_FSHARP_OPERATOR : SCE_FSHARP_DEFAULT;
@@ -616,7 +593,8 @@ void SCI_METHOD LexerFSharp::Fold(Sci_PositionU start, Sci_Position length, int 
 		chNext = styler.SafeGetCharAt(i + 1);
 
 		if (options.foldComment) {
-			if (options.foldCommentMultiLine && style == SCE_FSHARP_COMMENTLINE && stylePrev != SCE_FSHARP_COMMENTLINE) {
+			if (options.foldCommentMultiLine && style == SCE_FSHARP_COMMENTLINE &&
+			    stylePrev != SCE_FSHARP_COMMENTLINE) {
 				const bool haveCommentList = LineContains(styler, "//", lineStartNext, lineNext);
 				if (haveCommentList) {
 					commentLinesInFold++;
