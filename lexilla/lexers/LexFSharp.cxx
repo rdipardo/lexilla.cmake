@@ -12,7 +12,6 @@
 
 #include <string>
 #include <map>
-#include <charconv>
 
 #include "ILexer.h"
 #include "Scintilla.h"
@@ -108,23 +107,21 @@ struct FSharpString {
 	}
 };
 
-int8_t ParseDigit(int ch) noexcept;
-
 class UnicodeChar {
 	enum class Notation { none, asciiDec, asciiHex, utf16, utf32 };
 	Notation type = Notation::none;
 	// single-byte Unicode char (000 - 255)
-	int8_t asciiDigits[3] = { 0 };
-	int8_t maxDigit = 9;
-	int8_t toEnd = 0;
+	int asciiDigits[3] = { 0 };
+	int maxDigit = '9';
+	int toEnd = 0;
 	bool invalid = false;
 
 public:
 	UnicodeChar() noexcept = default;
 	UnicodeChar(const int prefix) {
 		if (IsADigit(prefix)) {
-			*asciiDigits = ParseDigit(prefix);
-			if (*asciiDigits >= 0 && *asciiDigits <= 2) {
+			*asciiDigits = prefix;
+			if (*asciiDigits >= '0' && *asciiDigits <= '2') {
 				type = Notation::asciiDec;
 				// count first digit as "prefix"
 				toEnd = 2;
@@ -146,21 +143,13 @@ public:
 			}
 		}
 	}
-	UnicodeChar &operator=(const UnicodeChar *other) {
-		if (this != other) {
-			type = other->type;
-			delete other;
-		}
-		return *this;
-	}
 	void Parse(const int ch) {
 		invalid = false;
 		switch (type) {
 			case Notation::asciiDec: {
-				int8_t nextDigit = ParseDigit(ch);
-				maxDigit = (*asciiDigits < 2) ? 9 : (asciiDigits[1] <= 4) ? 9 : 5;
-				if (IsADigit(ch) && asciiDigits[1] <= maxDigit && nextDigit <= maxDigit) {
-					asciiDigits[1] = nextDigit;
+				maxDigit = (*asciiDigits < '2') ? '9' : (asciiDigits[1] <= '4') ? '9' : '5';
+				if (IsADigit(ch) && asciiDigits[1] <= maxDigit && ch <= maxDigit) {
+					asciiDigits[1] = ch;
 					toEnd--;
 				} else {
 					invalid = true;
@@ -357,7 +346,7 @@ Sci_Position SCI_METHOD LexerFSharp::WordListSet(int n, const char *wl) {
 
 void SCI_METHOD LexerFSharp::Lex(Sci_PositionU start, Sci_Position length, int initStyle, IDocument *pAccess) {
 	LexAccessor styler(pAccess);
-	StyleContext sc(start, length, initStyle, styler);
+	StyleContext sc(start, static_cast<Sci_PositionU>(length), initStyle, styler);
 	Sci_PositionU cursor = 0;
 	UnicodeChar uniCh = UnicodeChar();
 	FSharpString fsStr = FSharpString();
@@ -510,7 +499,7 @@ void SCI_METHOD LexerFSharp::Lex(Sci_PositionU start, Sci_Position length, int i
 						}
 						token[wordLen] = '\0';
 						// a snake_case_identifier can never be a keyword
-						if (sc.ch != '_' || sc.GetRelative(-wordLen - 1) == '_') {
+						if (!(sc.ch == '_' || sc.GetRelative(-wordLen - 1) == '_')) {
 							for (int i = 0; i < WORDLIST_SIZE; i++) {
 								if (keywords[i].InList(token)) {
 									sc.ChangeState(keywordClasses[i]);
@@ -536,9 +525,9 @@ void SCI_METHOD LexerFSharp::Lex(Sci_PositionU start, Sci_Position length, int i
 				break;
 			case SCE_FSHARP_NUMBER:
 				state = (IsNumber(sc, currentBase) || IsFloat(sc))
-						? SCE_FSHARP_NUMBER
-						// change style even when operators aren't spaced
-						: setOperators.Contains(sc.ch) ? SCE_FSHARP_OPERATOR : SCE_FSHARP_DEFAULT;
+					? SCE_FSHARP_NUMBER
+					// change style even when operators aren't spaced
+					: setOperators.Contains(sc.ch) ? SCE_FSHARP_OPERATOR : SCE_FSHARP_DEFAULT;
 				currentBase = (state == SCE_FSHARP_NUMBER) ? currentBase : 10;
 				break;
 		}
@@ -564,15 +553,16 @@ void SCI_METHOD LexerFSharp::Fold(Sci_PositionU start, Sci_Position length, int 
 	}
 
 	LexAccessor styler(pAccess);
-	Sci_Position lineCurrent = styler.GetLine(start);
+	const Sci_Position startPos = static_cast<Sci_Position>(start);
+	const Sci_PositionU endPos = start + length;
+	Sci_Position lineCurrent = styler.GetLine(startPos);
 	Sci_Position lineNext = lineCurrent + 1;
-	Sci_PositionU lineStartNext = styler.LineStart(lineNext);
+	Sci_Position lineStartNext = styler.LineStart(lineNext);
 	Sci_Position commentLinesInFold = ZERO_LENGTH;
 	Sci_Position importsInFold = ZERO_LENGTH;
-	const Sci_PositionU endPos = start + length;
 	int style = initStyle;
-	int styleNext = styler.StyleAt(start);
-	char chNext = styler[start];
+	int styleNext = styler.StyleAt(startPos);
+	char chNext = styler[startPos];
 	int levelNext;
 	int levelCurrent = SC_FOLDLEVELBASE;
 	int visibleChars = 0;
@@ -584,13 +574,14 @@ void SCI_METHOD LexerFSharp::Fold(Sci_PositionU start, Sci_Position length, int 
 	levelNext = levelCurrent;
 
 	for (Sci_PositionU i = start; i < endPos; i++) {
-		const bool atEOL = i == (lineStartNext - 1);
+		const Sci_Position currentPos = static_cast<Sci_Position>(i);
+		const bool atEOL = currentPos == (lineStartNext - 1);
 		const int stylePrev = style;
 		const char ch = chNext;
 		bool inLineComment = (style == SCE_FSHARP_COMMENTLINE);
 		style = styleNext;
-		styleNext = styler.StyleAt(i + 1);
-		chNext = styler.SafeGetCharAt(i + 1);
+		styleNext = styler.StyleAt(currentPos + 1);
+		chNext = styler.SafeGetCharAt(currentPos + 1);
 
 		if (options.foldComment) {
 			if (options.foldCommentMultiLine && style == SCE_FSHARP_COMMENTLINE &&
@@ -618,9 +609,9 @@ void SCI_METHOD LexerFSharp::Fold(Sci_PositionU start, Sci_Position length, int 
 		}
 
 		if (options.foldPreprocessor && style == SCE_FSHARP_PREPROCESSOR) {
-			if (styler.Match(i, "#if")) {
+			if (styler.Match(currentPos, "#if")) {
 				levelNext++;
-			} else if (styler.Match(i, "#endif")) {
+			} else if (styler.Match(currentPos, "#endif")) {
 				levelNext--;
 			}
 		}
@@ -643,7 +634,7 @@ void SCI_METHOD LexerFSharp::Fold(Sci_PositionU start, Sci_Position length, int 
 			visibleChars++;
 		}
 
-		if (atEOL || (i == endPos - 1)) {
+		if (atEOL || (i == (endPos - 1))) {
 			int levelUse = levelCurrent;
 			int lev = levelUse | levelNext << 16;
 
@@ -664,7 +655,7 @@ void SCI_METHOD LexerFSharp::Fold(Sci_PositionU start, Sci_Position length, int 
 			lineStartNext = styler.LineStart(lineNext);
 			levelCurrent = levelNext;
 
-			if (atEOL && (i == static_cast<Sci_PositionU>(styler.Length() - 1))) {
+			if (atEOL && (currentPos == (styler.Length() - 1))) {
 				styler.SetLevel(lineCurrent, (levelCurrent | levelCurrent << 16) | SC_FOLDLEVELWHITEFLAG);
 			}
 		}
@@ -673,7 +664,7 @@ void SCI_METHOD LexerFSharp::Fold(Sci_PositionU start, Sci_Position length, int 
 
 bool LineContains(LexAccessor &styler, const char *word, const Sci_Position start, const Sci_Position end) {
 	bool found = false;
-	Sci_Position limit = (end > 1) ? end : start;
+	const Sci_Position limit = (end > 1) ? end : start;
 	for (Sci_Position i = start; i < styler.LineEnd(limit); i++) {
 		if (styler.Match(i, word)) {
 			found = true;
@@ -681,16 +672,6 @@ bool LineContains(LexAccessor &styler, const char *word, const Sci_Position star
 		}
 	}
 	return found;
-}
-
-int8_t ParseDigit(int ch) noexcept {
-	char buf[2] = { 0 };
-	*buf = static_cast<char>(ch);
-	buf[1] = '\0';
-	const std::string number = buf;
-	int8_t result = -1;
-	std::from_chars(number.data(), number.data() + number.size(), result);
-	return result;
 }
 } // namespace
 

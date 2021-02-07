@@ -4,7 +4,13 @@ dist: focal
 compiler:
   - clang
   - gcc
+env:
+  - LEXER_SRC_FILE=LexFSharp.cxx
+before_install:
+  - sudo apt -qqy update
+  - sudo apt -qqy install cppcheck
 script:
+  - cppcheck --suppressions-list=lexilla/cppcheck.suppress "lexilla/lexers/${LEXER_SRC_FILE}"
   - cd lexilla/scripts
   - ./RunTest.sh
 jobs:
@@ -13,13 +19,15 @@ jobs:
       env:
         - CLANG=1
       osx_image: xcode12
-      script:
-        - cd lexilla/scripts
-        - ./RunTest.sh
+      before_install:
+        - brew update
+        - brew install cppcheck
     - os: windows
+      before_install:
+        - echo "Starting Windows build . . ."
       install:
         - choco install -y visualstudio2019buildtools --package-parameters "--add Microsoft.VisualStudio.Component.VC.Tools.x86.x64"
       script:
         - export CXX=cl.exe
         - cd lexilla/scripts
-        - CI=1 CXX=$CXX ./RunTest.bat
+        - CI=1 LEXER_SRC_FILE=$LEXER_SRC_FILE CXX=$CXX ./RunTest.bat
