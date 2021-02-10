@@ -5,7 +5,7 @@ set_target_properties (TestLexers PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/test")
 
 if(LEXILLA_STATIC)
-    if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+    if(MSVC)
         set (LEXILLA_STATIC_LIB "${PROJECT_SOURCE_DIR}/bin/lexilla.lib")
     else()
         set (LEXILLA_STATIC_LIB "${PROJECT_SOURCE_DIR}/bin/liblexilla.a")
@@ -18,7 +18,7 @@ else()
     add_dependencies (TestLexers lexilla)
 endif()
 
-if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+if(MSVC)
     # flags that were set with `add_compile_options()` will propagate to every
     # build target; use `target_compile_options()` to control scope
     target_compile_options (TestLexers PRIVATE /std:c++latest)
@@ -36,7 +36,7 @@ else()
 endif()
 
 # TODO: have LexillaAccess.cxx load liblexilla.dll when __MINGW32__ is defined
-if(CMAKE_HOST_WIN32 AND CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+if(MINGW)
     add_custom_command (TARGET TestLexers
                         PRE_LINK
                         COMMAND ${CMAKE_COMMAND} -E copy

@@ -9,6 +9,7 @@ cmake -Bbuild-mingw -H. -G"MinGW Makefiles" -DCMAKE_C_COMPILER=gcc.exe -DCMAKE_C
 cmake --build ./build-mingw -- TestLexers
 
 @rem MSVC build
+SET "MAKE=nmake.exe"
 CALL "%BOOTSTRAP_MSVC%" &
 cmake -Bbuild-msvc -H. -G"NMake Makefiles" -DCMAKE_C_COMPILER=cl.exe -DCMAKE_CXX_COMPILER=cl.exe -DLEXILLA_STATIC=1
 cmake --build ./build-msvc -- TestLexers

@@ -1,5 +1,5 @@
 ### lexilla/CMakeLists.txt
-cmake_minimum_required (VERSION 3.0)
+cmake_minimum_required (VERSION 3.2)
 include (ExternalProject)
 
 project (lexilla VERSION "5.0.0")
@@ -35,9 +35,8 @@ include_directories ("${PROJECT_SOURCE_DIR}/src"
                      "../scintilla/include")
 
 if(CMAKE_HOST_SYSTEM_NAME MATCHES "Darwin")
-    add_compile_options (-arch arm64 -arch x86_64)
-    set (LINK_FLAGS "-dynamiclib -arch arm64 -arch x86_64")
-elseif(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+    set (LINK_FLAGS "-dynamiclib")
+elseif(MSVC)
     set (SUBSYSTEM "")
     add_definitions (
         -D_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1
@@ -92,7 +91,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU" OR
         --std=c++17
     )
 
-    if(CMAKE_HOST_WIN32) #i.e, MinGW
+    if(MINGW)
         add_compile_options (-mwindows)
     endif()
 
