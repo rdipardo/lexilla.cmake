@@ -4,30 +4,36 @@ dist: focal
 compiler:
   - clang
   - gcc
-env:
-  - LEXER_SRC_FILE=LexFSharp.cxx
-before_install:
-  - sudo apt -qqy update
-  - sudo apt -qqy install cppcheck
 script:
-  - cppcheck --suppressions-list=lexilla/cppcheck.suppress "lexilla/lexers/${LEXER_SRC_FILE}"
-  - cd lexilla/scripts
-  - ./RunTest.sh
+  - ./cmake.sh
 jobs:
   include:
     - os: osx
       env:
         - CLANG=1
       osx_image: xcode12
-      before_install:
-        - brew update
-        - brew install cppcheck
     - os: windows
+      cache:
+        directories:
+          - $HOME/AppData/Local/Temp/chocolatey
+          - /c/tools/msys64
       before_install:
-        - echo "Starting Windows build . . ."
+        - |-
+          [[ ! -f C:/tools/msys64/msys2_shell.cmd ]] && rm -rf C:/tools/msys64
+          choco uninstall -y mingw
+          choco upgrade --no-progress -y msys2 cmake hg
+          export msys2='cmd //C RefreshEnv.cmd '
+          export msys2+='& set MSYS=winsymlinks:nativestrict '
+          export msys2+='& C:\\tools\\msys64\\msys2_shell.cmd -defterm -no-start'
+          export mingw64="$msys2 -mingw64 -full-path -here -c "\"\$@"\" --"
+          export msys2+=" -msys2 -c "\"\$@"\" --"
+          $msys2 pacman --sync --noconfirm --needed mingw-w64-x86_64-toolchain
+          taskkill //IM gpg-agent.exe //F
+          export PATH=/c/tools/msys64/mingw64/bin:$PATH
+          export MAKE=mingw32-make
+      before_cache:
+        - $msys2 pacman --sync --clean --noconfirm
       install:
-        - choco install -y visualstudio2019buildtools --package-parameters "--add Microsoft.VisualStudio.Component.VC.Tools.x86.x64"
+        - choco install --no-progress -y visualstudio2019buildtools --package-parameters "--add Microsoft.VisualStudio.Component.VC.Tools.x86.x64"
       script:
-        - export CXX=cl.exe
-        - cd lexilla/scripts
-        - CI=1 LEXER_SRC_FILE=$LEXER_SRC_FILE CXX=$CXX ./RunTest.bat
+        - ./cmake.bat
