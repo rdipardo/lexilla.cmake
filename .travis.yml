@@ -13,6 +13,7 @@ jobs:
         - CLANG=1
       osx_image: xcode12
     - os: windows
+      compiler: gcc
       cache:
         directories:
           - $HOME/AppData/Local/Temp/chocolatey
@@ -37,3 +38,5 @@ jobs:
         - choco install --no-progress -y visualstudio2019buildtools --package-parameters "--add Microsoft.VisualStudio.Component.VC.Tools.x86.x64"
       script:
         - ./cmake.bat
+  allow_failures:
+  - os: osx

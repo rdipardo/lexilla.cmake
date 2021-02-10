@@ -18,10 +18,6 @@ else()
     add_dependencies (TestLexers lexilla)
 endif()
 
-if(CMAKE_HOST_SYSTEM_NAME MATCHES "Darwin")
-    set (CMAKE_CXX_COMPILER_ID "Clang")
-endif()
-
 if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
     # flags that were set with `add_compile_options()` will propagate to every
     # build target; use `target_compile_options()` to control scope
@@ -35,6 +31,7 @@ else()
 
     if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
         target_compile_options (TestLexers PRIVATE -fsanitize=address)
+        target_link_libraries (TestLexers PRIVATE -fsanitize=address)
     endif()
 endif()
 

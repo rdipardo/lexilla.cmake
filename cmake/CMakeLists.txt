@@ -35,7 +35,6 @@ include_directories ("${PROJECT_SOURCE_DIR}/src"
                      "../scintilla/include")
 
 if(CMAKE_HOST_SYSTEM_NAME MATCHES "Darwin")
-    set (CMAKE_CXX_COMPILER_ID "Clang")
     add_compile_options (-arch arm64 -arch x86_64)
     set (LINK_FLAGS "-dynamiclib -arch arm64 -arch x86_64")
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
