@@ -1,57 +1,80 @@
-Lexer Development Demo for `lexilla`
-====================================
+Building lexilla with CMake
+===========================
 
 [![Build Status][travis-ci]][Build Status]
 
-## Purpose
+## External dependencies
 
-Demonstrate a lexer development workflow targeting scintilla 5.x
+- [scintilla][]: cross-platform source code editing component: <https://scintilla.org>
 
-## Source origin
-
-This project combines code from the (actively changing) [lexilla][] and
-(stable) [scintilla][] code bases.
+- [lexilla][]: (newly independent) library of language lexers for use with
+  scintilla: <https://scintilla.org/Lexilla.html>
 
 ## Testing locally
 
 **Note.** All compilers must support C++20 features, e.g.
-`std::basic_string<CharT,Traits,Allocator>::ends_with`
+         `std::basic_string<CharT,Traits,Allocator>::ends_with`
 
-### Unix `make`
+Make sure [mercurial](https://www.mercurial-scm.org) is installed.
+
+Clone this branch and submodules:
+
+    git clone --recursive --branch cmake https://bitbucket.org/rdipardo/lexilla-dev.git
+
+Or, inside your local working tree:
+
+    git checkout cmake
+    # if necessary, clean out the submodule path
+    # rm -rf ./lexilla
+    git submodule update --init --remote
+
+### On Linux or macOS
 _Requires g++ 9.x or clang on LLVM 10.x_
 
-    $ cd lexilla/scripts
-    $ ./RunTest.sh
+    $ ./cmake.sh
 
-### MSVC
-_Requires Visual Studio 2019 or, at minimum, the
-[Visual Studio 2019 Build Tools][]_
+### On Windows
+_Requires the [MinGW-w64 toolchain][] or the [Visual Studio 2019 Build Tools][]_
 
-From the [Developer Command Prompt][]:
+Edit `cmake.bat` according to your setup; for example:
+
+#### MinGW
+
+```bat
+cmake -Bbuild-mingw -H. -G"MinGW Makefiles"
+
+:: build all tasks
+cmake --build ./build-mingw
+
+:: build only the static library
+cmake --build ./build-mingw -- lexilla-static
+```
+
+Run `cmake.bat` from the console with `g++` and `mingw32-make` in your `PATH`.
 
 #### NMake
 
-    > cd lexilla\scripts
-    > RunTest
+```bat
+:: configure the test program to link statically
+cmake -Bbuild-msvc -H. -G"NMake Makefiles" -DLEXILLA_STATIC=1
 
-#### MSBuild
+:: build and run the test program
+cmake --build ./build-msvc -- TestLexers
+```
 
-    > cd lexilla\src
-    > nmake /nologo -f lexilla.mak
-    > cd ..
-    > msbuild /nologo /v:m /p:Configuration=Release /t:Rebuild test\TestLexers.vcxproj
-    > test\Release\TestLexers.exe
+Run `cmake.bat` from the [Developer Command Prompt][].
 
 
 License
 =======
-The [scintilla/License.txt](scintilla/License.txt) and
-[lexilla/License.txt](lexilla/License.txt) files describe the conditions under
-which this software may be distributed.
+The [License.txt][] file describes the conditions under which this software may
+be distributed.
 
 [lexilla]: https://github.com/ScintillaOrg/lexilla
+[License.txt]: https://github.com/ScintillaOrg/lexilla/blob/master/License.txt
 [scintilla]: https://sourceforge.net/p/scintilla/code/ci/default/tree
+[MinGW-w64 toolchain]: https://chocolatey.org/packages/mingw
 [Visual Studio 2019 Build Tools]: https://docs.microsoft.com/en-us/cpp/build/vscpp-step-0-installation?view=vs-2019
 [Developer Command Prompt]: https://docs.microsoft.com/en-us/dotnet/framework/tools/developer-command-prompt-for-vs
-[travis-ci]: https://travis-ci.com/rdipardo/lexilla-dev.svg?branch=master
+[travis-ci]: https://travis-ci.com/rdipardo/lexilla-dev.svg?branch=cmake
 [Build Status]: https://travis-ci.com/bitbucket/rdipardo/lexilla-dev

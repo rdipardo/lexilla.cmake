@@ -25,18 +25,16 @@ set (CMAKE_CXX_FLAGS_RELEASE "")
 set (CMAKE_CXX_FLAGS_RELWITHDEBINFO "")
 set (CMAKE_CXX_FLAGS_MINSIZEREL "")
 
-file (GLOB LEXILLA_SRC "${PROJECT_SOURCE_DIR}/src/*.c*"
-                       "${PROJECT_SOURCE_DIR}/lexers/*.c*"
-                       "${PROJECT_SOURCE_DIR}/lexlib/*.c*")
+file (GLOB LEXILLA_SRC "${PROJECT_SOURCE_DIR}/src/*.cxx"
+                       "${PROJECT_SOURCE_DIR}/lexers/*.cxx"
+                       "${PROJECT_SOURCE_DIR}/lexlib/*.cxx")
 
 include_directories ("${PROJECT_SOURCE_DIR}/src"
                      "${PROJECT_SOURCE_DIR}/lexlib"
                      "${PROJECT_SOURCE_DIR}/include"
                      "../scintilla/include")
 
-if(CMAKE_HOST_SYSTEM_NAME MATCHES "Darwin")
-    set (LINK_FLAGS "-dynamiclib")
-elseif(MSVC)
+if(MSVC)
     set (SUBSYSTEM "")
     add_definitions (
         -D_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1
@@ -44,12 +42,12 @@ elseif(MSVC)
         -D_CRT_SECURE_NO_WARNINGS=1
     )
     add_compile_options (
-        /Zi
-        /TP
-        /MP
-        /W4
-        /EHsc
-        /std:c++17
+        -Zi
+        -TP
+        -MP
+        -W4
+        -EHsc
+        -std:c++17
     )
 
     if(PLATFORM MATCHES "x64")
@@ -66,15 +64,21 @@ elseif(MSVC)
     endif()
 
     if(DEBUG)
-        add_compile_options (/Od /MTd /DDEBUG)
-        set (LINK_FLAGS "/OPT:REF /LTCG /IGNORE:4197 /DEBUG ${SUBSYSTEM}")
+        add_compile_options (-Od -MTd -DDEBUG)
     else()
-        add_compile_options (/O1 /MT /DNDEBUG /GL)
+        set (LDFLAGS_BASE "-LTCG -IGNORE:4197")
+        set (LDFLAGS "-OPT:REF -INCREMENTAL:NO -DEBUG ${LDFLAGS_BASE}")
+        add_compile_options (-O1 -MT -DNDEBUG -GL)
+        set (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${LDFLAGS} ${SUBSYSTEM}")
+        set (CMAKE_STATIC_LINKER_FLAGS "${CMAKE_STATIC_LINKER_FLAGS} ${LDFLAGS_BASE}")
+        set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${LDFLAGS} -IGNORE:4075")
     endif()
 
     if(QUIET)
-        add_compile_options (/nologo)
-        set (LINK_FLAGS "/nologo")
+        add_compile_options (-nologo)
+        set (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -nologo")
+        set (CMAKE_STATIC_LINKER_FLAGS "${CMAKE_STATIC_LINKER_FLAGS} -nologo")
+        set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -nologo")
     endif()
 endif()
 
@@ -82,7 +86,7 @@ endif()
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU" OR
    CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     # -fPIC is automagically added if the SHARED option is passed to
-    # add_library() (see below)
+    # add_library() (see below); ditto the -dynamiclib flag
     add_compile_options (
         -fvisibility=hidden
         -Wall
