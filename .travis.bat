@@ -1,7 +1,7 @@
 @echo off
 SETLOCAL
 SET "BOOTSTRAP_MSVC=C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\Common7\Tools\VsDevCmd.bat"
-xcopy /SY cmake\* lexilla
+xcopy /SY cmakelists\* lexilla
 cd lexilla
 
 @rem MinGW build

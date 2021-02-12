@@ -1,0 +1,260 @@
+### lexilla/CMakeLists.txt
+cmake_minimum_required (VERSION 3.2)
+include (ExternalProject)
+
+project (lexilla VERSION "5.0.0")
+
+# clones repo if no there's "scintilla" directory on disk;
+# otherwise runs `hg pull && hg update`
+externalproject_add (
+    scintilla
+    PREFIX "scintilla"
+    HG_REPOSITORY "http://hg.code.sf.net/p/scintilla/code"
+    SOURCE_DIR "../../scintilla"
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND "" # required if project has no CMakeLists.txt
+    TEST_COMMAND ""
+    INSTALL_COMMAND "" # might be used to copy headers to system directories
+)
+
+# HACK: prevent cmake from automagically populating our CXX_FLAGS
+# https://stackoverflow.com/a/24767451
+set (CMAKE_CXX_FLAGS "")
+set (CMAKE_CXX_FLAGS_DEBUG "")
+set (CMAKE_CXX_FLAGS_RELEASE "")
+set (CMAKE_CXX_FLAGS_RELWITHDEBINFO "")
+set (CMAKE_CXX_FLAGS_MINSIZEREL "")
+
+set (LEXERS
+    ${PROJECT_SOURCE_DIR}/lexers/LexA68k.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexAPDL.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexASY.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexAU3.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexAVE.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexAVS.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexAbaqus.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexAda.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexAsm.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexAsn1.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexBaan.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexBash.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexBasic.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexBatch.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexBibTeX.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexBullant.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexCIL.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexCLW.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexCOBOL.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexCPP.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexCSS.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexCaml.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexCmake.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexCoffeeScript.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexConf.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexCrontab.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexCsound.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexD.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexDMAP.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexDMIS.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexDataflex.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexDiff.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexECL.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexEDIFACT.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexEScript.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexEiffel.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexErlang.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexErrorList.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexFSharp.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexFlagship.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexForth.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexFortran.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexGAP.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexGui4Cli.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexHTML.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexHaskell.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexHex.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexHollywood.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexIndent.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexInno.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexJSON.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexKVIrc.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexKix.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexLaTeX.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexLisp.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexLout.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexLua.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexMMIXAL.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexMPT.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexMSSQL.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexMagik.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexMake.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexMarkdown.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexMatlab.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexMaxima.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexMetapost.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexModula.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexMySQL.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexNim.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexNimrod.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexNsis.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexNull.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexOScript.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexOpal.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexPB.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexPLM.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexPO.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexPOV.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexPS.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexPascal.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexPerl.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexPowerPro.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexPowerShell.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexProgress.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexProps.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexPython.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexR.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexRaku.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexRebol.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexRegistry.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexRuby.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexRust.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexSAS.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexSML.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexSQL.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexSTTXT.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexScriptol.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexSmalltalk.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexSorcus.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexSpecman.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexSpice.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexStata.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexTACL.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexTADS3.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexTAL.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexTCL.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexTCMD.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexTeX.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexTxt2tags.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexVB.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexVHDL.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexVerilog.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexVisualProlog.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexX12.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexYAML.cxx)
+
+set (LEXLIB
+    ${PROJECT_SOURCE_DIR}/src/Lexilla.cxx
+    ${PROJECT_SOURCE_DIR}/lexlib/Accessor.cxx
+    ${PROJECT_SOURCE_DIR}/lexlib/CharacterCategory.cxx
+    ${PROJECT_SOURCE_DIR}/lexlib/CharacterSet.cxx
+    ${PROJECT_SOURCE_DIR}/lexlib/DefaultLexer.cxx
+    ${PROJECT_SOURCE_DIR}/lexlib/LexerBase.cxx
+    ${PROJECT_SOURCE_DIR}/lexlib/LexerModule.cxx
+    ${PROJECT_SOURCE_DIR}/lexlib/LexerNoExceptions.cxx
+    ${PROJECT_SOURCE_DIR}/lexlib/LexerSimple.cxx
+    ${PROJECT_SOURCE_DIR}/lexlib/PropSetSimple.cxx
+    ${PROJECT_SOURCE_DIR}/lexlib/StyleContext.cxx
+    ${PROJECT_SOURCE_DIR}/lexlib/WordList.cxx)
+
+include_directories ("${PROJECT_SOURCE_DIR}/include"
+                     "../scintilla/include"
+                     "${PROJECT_SOURCE_DIR}/lexlib"
+                     "${PROJECT_SOURCE_DIR}/access")
+
+if(MSVC)
+    set (SUBSYSTEM "")
+    add_definitions (
+        -D_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1
+        -D_CRT_SECURE_NO_DEPRECATE=1
+        -D_CRT_SECURE_NO_WARNINGS=1
+    )
+    add_compile_options (
+        -Zi
+        -TP
+        -MP
+        -W4
+    )
+
+    if(PLATFORM MATCHES "x64")
+        set (SUBSYSTEM "-SUBSYSTEM:WINDOWS,5.02")
+    elseif(ARM64)
+        add_definitions (-D_ARM64_WINAPI_PARTITION_DESKTOP_SDK_AVAILABLE=1)
+        set (SUBSYSTEM "-SUBSYSTEM:WINDOWS,10.00")
+    else()
+        set (SUBSYSTEM "-SUBSYSTEM:WINDOWS,5.01")
+    endif()
+
+    if(SUPPORT_XP)
+        add_definitions (-D_USING_V110_SDK71_)
+    endif()
+
+    if(DEBUG)
+        add_compile_options (-Od -MTd -DDEBUG)
+    else()
+        set (LDFLAGS_BASE "-LTCG -IGNORE:4197")
+        set (LDFLAGS "-OPT:REF -INCREMENTAL:NO -DEBUG ${LDFLAGS_BASE}")
+        add_compile_options (-O1 -MT -DNDEBUG -GL)
+        set (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${LDFLAGS} ${SUBSYSTEM}")
+        set (CMAKE_STATIC_LINKER_FLAGS "${CMAKE_STATIC_LINKER_FLAGS} ${LDFLAGS_BASE}")
+        set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${LDFLAGS} -IGNORE:4075")
+    endif()
+
+    if(QUIET)
+        add_compile_options (-nologo)
+        set (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -nologo")
+        set (CMAKE_STATIC_LINKER_FLAGS "${CMAKE_STATIC_LINKER_FLAGS} -nologo")
+        set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -nologo")
+    endif()
+# NOTE: MinGW will cause CMAKE_CXX_COMPILER_ID to return "GNU"
+elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU" OR
+        CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    # -fPIC is automagically added if the SHARED option is passed to
+    # add_library() (see below); ditto the -dynamiclib flag
+    add_compile_options (
+        -fvisibility=hidden
+        -Wall
+        -Wextra
+        -Wpedantic
+    )
+
+    if(MINGW)
+        add_compile_options (-mwindows)
+    endif()
+
+    if(DEBUG)
+        add_definitions (-DDEBUG)
+        add_compile_options (-g)
+    else()
+        add_definitions (-DNDEBUG)
+        add_compile_options (-Os)
+    endif()
+endif()
+
+# declare build targets
+add_library (lexilla SHARED ${LEXLIB} ${LEXERS})
+add_library (lexilla-static STATIC ${LEXLIB} ${LEXERS})
+
+if(MSVC)
+    # flags that were set with `add_compile_options()` will propagate to every
+    # build target; use `target_compile_options()` to control scope
+    target_compile_options (lexilla PRIVATE -EHsc -std:c++17)
+    target_compile_options (lexilla-static PRIVATE -EHsc -std:c++17)
+else()
+    target_compile_options (lexilla PRIVATE --std=c++17)
+    target_compile_options (lexilla-static PRIVATE --std=c++17)
+endif()
+
+set_target_properties (lexilla lexilla-static PROPERTIES
+    # gcc/clang generates a versioned binary and canonical symlink to the same
+    # whenever VERSION is defined
+    VERSION ${PROJECT_VERSION}
+    # CXX_STANDARD 17 # convenient, but defaults to gnu++17 whenever it can
+    OUTPUT_NAME lexilla # the lib- prefix will be added by gcc/clang and MinGW
+    LIBRARY_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/bin"
+    ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/bin"
+    RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/bin")
+# the first target depends on the second
+add_dependencies (lexilla scintilla)
+add_dependencies (lexilla-static scintilla)
+# build and run test application
+add_subdirectory ("${PROJECT_SOURCE_DIR}/test")

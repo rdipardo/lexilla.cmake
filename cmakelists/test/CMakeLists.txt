@@ -1,6 +1,6 @@
 ### lexilla/test/CMakeLists.txt
 add_executable (TestLexers
-    "TestLexers.cxx" "TestDocument.cxx" "LexillaAccess.cxx")
+    "TestLexers.cxx" "TestDocument.cxx" "../access/LexillaAccess.cxx")
 set_target_properties (TestLexers PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/test")
 
@@ -19,9 +19,7 @@ else()
 endif()
 
 if(MSVC)
-    # flags that were set with `add_compile_options()` will propagate to every
-    # build target; use `target_compile_options()` to control scope
-    target_compile_options (TestLexers PRIVATE /std:c++latest)
+    target_compile_options (TestLexers PRIVATE -std:c++latest)
 else()
     target_compile_options (TestLexers PRIVATE --std=c++2a)
 

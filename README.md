@@ -28,41 +28,45 @@ Or, inside your local working tree:
     # rm -rf ./lexilla
     git submodule update --init --remote
 
+Edit the appropriate build script for your build system; for example:
+
+```sh
+# build.sh
+
+cmake -Bbuild-gnu -H. -G"Unix Makefiles"
+
+# build all tasks
+cmake --build ./build-gnu
+
+# build only the static library
+cmake --build ./build-gnu -- lexilla-static
+```
+
+```bat
+:: build-mingw.bat
+
+:: configure the test program to link statically
+cmake -Bbuild-mingw -H. -G"MinGW Makefiles" -DLEXILLA_STATIC=1
+
+:: build and run the test program
+cmake --build ./build-mingw -- TestLexers
+```
+
 ### On Linux or macOS
 _Requires g++ 9.x or clang on LLVM 10.x_
 
-    $ ./cmake.sh
+    $ ./build.sh
 
 ### On Windows
 _Requires the [MinGW-w64 toolchain][] or the [Visual Studio 2019 Build Tools][]_
 
-Edit `cmake.bat` according to your setup; for example:
-
 #### MinGW
 
-```bat
-cmake -Bbuild-mingw -H. -G"MinGW Makefiles"
-
-:: build all tasks
-cmake --build ./build-mingw
-
-:: build only the static library
-cmake --build ./build-mingw -- lexilla-static
-```
-
-Run `cmake.bat` from the console with `g++` and `mingw32-make` in your `PATH`.
+Run `build-mingw.bat` from a console with `g++` and `mingw32-make` in your `PATH`.
 
 #### NMake
 
-```bat
-:: configure the test program to link statically
-cmake -Bbuild-msvc -H. -G"NMake Makefiles" -DLEXILLA_STATIC=1
-
-:: build and run the test program
-cmake --build ./build-msvc -- TestLexers
-```
-
-Run `cmake.bat` from the [Developer Command Prompt][].
+Run `build-nmake.bat` from the [Developer Command Prompt][].
 
 
 License

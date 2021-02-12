@@ -5,7 +5,7 @@ compiler:
   - clang
   - gcc
 script:
-  - ./cmake.sh
+  - ./build.sh
 jobs:
   include:
     - os: osx
@@ -37,6 +37,4 @@ jobs:
       install:
         - choco install --no-progress -y visualstudio2019buildtools --package-parameters "--add Microsoft.VisualStudio.Component.VC.Tools.x86.x64"
       script:
-        - ./cmake.bat
-  allow_failures:
-  - os: osx
+        - ./.travis.bat
