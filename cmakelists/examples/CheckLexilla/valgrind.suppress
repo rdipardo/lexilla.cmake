@@ -1,0 +1,10 @@
+{
+ Ignore bug with dlopen@@GLIBC_2.x.x
+ Memcheck:Leak
+ match-leak-kinds:reachable
+ fun:?alloc
+ ...
+ fun:_dl_*
+ ...
+ fun:dl*
+}

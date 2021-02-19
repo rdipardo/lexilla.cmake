@@ -17,13 +17,20 @@ externalproject_add (
     INSTALL_COMMAND "" # might be used to copy headers to system directories
 )
 
-# HACK: prevent cmake from automagically populating our CXX_FLAGS
+# HACK: prevent cmake from automagically populating our flags, even if they've
+# been cached already
 # https://stackoverflow.com/a/24767451
-set (CMAKE_CXX_FLAGS "")
-set (CMAKE_CXX_FLAGS_DEBUG "")
-set (CMAKE_CXX_FLAGS_RELEASE "")
-set (CMAKE_CXX_FLAGS_RELWITHDEBINFO "")
-set (CMAKE_CXX_FLAGS_MINSIZEREL "")
+# https://cmake.org/cmake/help/latest/command/set.html#set-cache-entry
+set (CMAKE_C_FLAGS "" CACHE STRING "" FORCE)
+set (CMAKE_C_FLAGS_DEBUG "" CACHE STRING "" FORCE)
+set (CMAKE_C_FLAGS_RELEASE "" CACHE STRING "" FORCE)
+set (CMAKE_C_FLAGS_RELWITHDEBINFO "" CACHE STRING "" FORCE)
+set (CMAKE_C_FLAGS_MINSIZEREL "" CACHE STRING "" FORCE)
+set (CMAKE_CXX_FLAGS CACHE STRING "" FORCE)
+set (CMAKE_CXX_FLAGS_DEBUG CACHE STRING "" FORCE)
+set (CMAKE_CXX_FLAGS_RELEASE CACHE STRING "" FORCE)
+set (CMAKE_CXX_FLAGS_RELWITHDEBINFO CACHE STRING "" FORCE)
+set (CMAKE_CXX_FLAGS_MINSIZEREL CACHE STRING "" FORCE)
 
 set (LEXERS
     ${PROJECT_SOURCE_DIR}/lexers/LexA68k.cxx
@@ -210,12 +217,7 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU" OR
         CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     # -fPIC is automagically added if the SHARED option is passed to
     # add_library() (see below); ditto the -dynamiclib flag
-    add_compile_options (
-        -fvisibility=hidden
-        -Wall
-        -Wextra
-        -Wpedantic
-    )
+    add_compile_options (-Wall -Wextra)
 
     if(MINGW)
         add_compile_options (-mwindows)
@@ -240,8 +242,10 @@ if(MSVC)
     target_compile_options (lexilla PRIVATE -EHsc -std:c++17)
     target_compile_options (lexilla-static PRIVATE -EHsc -std:c++17)
 else()
-    target_compile_options (lexilla PRIVATE --std=c++17)
-    target_compile_options (lexilla-static PRIVATE --std=c++17)
+    target_compile_options (lexilla PRIVATE
+        -fvisibility=hidden -Wpedantic --std=c++17)
+    target_compile_options (lexilla-static PRIVATE
+        -fvisibility=hidden -Wpedantic --std=c++17)
 endif()
 
 set_target_properties (lexilla lexilla-static PROPERTIES
@@ -256,5 +260,7 @@ set_target_properties (lexilla lexilla-static PROPERTIES
 # the first target depends on the second
 add_dependencies (lexilla scintilla)
 add_dependencies (lexilla-static scintilla)
-# build and run test application
+# build and run test applications
 add_subdirectory ("${PROJECT_SOURCE_DIR}/test")
+add_subdirectory ("${PROJECT_SOURCE_DIR}/examples/SimpleLexer")
+add_subdirectory ("${PROJECT_SOURCE_DIR}/examples/CheckLexilla")

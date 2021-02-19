@@ -45,5 +45,5 @@ endif()
 # run the generated binary
 add_custom_command (TARGET TestLexers
                     POST_BUILD
-                    COMMAND "TestLexers" #works for ELFs and *.exes
-                    WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}/test")
+                    COMMAND "$<TARGET_FILE:TestLexers>"
+                    WORKING_DIRECTORY "$<TARGET_FILE_DIR:TestLexers>")
