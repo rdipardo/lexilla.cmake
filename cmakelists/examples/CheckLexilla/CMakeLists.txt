@@ -7,13 +7,13 @@ set_target_properties (CheckLexilla PROPERTIES
 if(MSVC)
     # https://discourse.cmake.org/t/msvc-flag-tp-is-set-on-a-c-target-when-added-as-a-subdirectory/680
     target_compile_options(CheckLexilla PRIVATE -TC)
-    
+
     if(DEBUG)
         target_compile_options(CheckLexilla PRIVATE -Od -MTd -DDEBUG)
     else()
         target_compile_options(CheckLexilla PRIVATE -O1 -MT -DNDEBUG -GL)
     endif()
-elseif(CMAKE_C_COMPILER_ID MATCHES "GNU" OR CMAKE_C_COMPILER_ID MATCHES "Clang")
+elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID MATCHES "Clang")
     find_program(VALGRIND "valgrind")
     target_compile_options (CheckLexilla PRIVATE -Wno-format)
     # https://github.com/google/sanitizers/issues/856#issuecomment-727254300

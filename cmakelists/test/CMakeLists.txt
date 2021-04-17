@@ -19,7 +19,7 @@ else()
 endif()
 
 if(MSVC)
-    target_compile_options (TestLexers PRIVATE -std:c++latest)
+    target_compile_options (TestLexers PRIVATE -EHsc -std:c++latest)
 else()
     target_compile_options (TestLexers PRIVATE --std=c++2a)
 

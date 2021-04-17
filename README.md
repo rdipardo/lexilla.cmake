@@ -17,13 +17,12 @@ Building lexilla with CMake
 
 Make sure [mercurial](https://www.mercurial-scm.org) is installed.
 
-Clone this branch and submodules:
+Clone the source tree and submodules:
 
-    git clone --recursive --branch cmake https://bitbucket.org/rdipardo/lexilla-dev.git
+    git clone --recursive https://bitbucket.org/rdipardo/lexilla-dev.git
 
 Or, inside your local working tree:
 
-    git checkout cmake
     # if necessary, clean out the submodule path
     # rm -rf ./lexilla
     git submodule update --init --remote
@@ -80,5 +79,5 @@ be distributed.
 [MinGW-w64 toolchain]: https://chocolatey.org/packages/mingw
 [Visual Studio 2019 Build Tools]: https://docs.microsoft.com/en-us/cpp/build/vscpp-step-0-installation?view=vs-2019
 [Developer Command Prompt]: https://docs.microsoft.com/en-us/dotnet/framework/tools/developer-command-prompt-for-vs
-[travis-ci]: https://travis-ci.com/rdipardo/lexilla-dev.svg?branch=cmake
+[travis-ci]: https://travis-ci.com/rdipardo/lexilla-dev.svg?branch=default
 [Build Status]: https://travis-ci.com/bitbucket/rdipardo/lexilla-dev
