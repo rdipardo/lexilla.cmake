@@ -1,8 +1,6 @@
 Building lexilla with CMake
 ===========================
 
-[![Build Status][travis-ci]][Build Status]
-
 ## External dependencies
 
 - [scintilla][]: cross-platform source code editing component: <https://scintilla.org>
@@ -79,5 +77,3 @@ be distributed.
 [MinGW-w64 toolchain]: https://chocolatey.org/packages/mingw
 [Visual Studio 2019 Build Tools]: https://docs.microsoft.com/en-us/cpp/build/vscpp-step-0-installation?view=vs-2019
 [Developer Command Prompt]: https://docs.microsoft.com/en-us/dotnet/framework/tools/developer-command-prompt-for-vs
-[travis-ci]: https://travis-ci.com/rdipardo/lexilla-dev.svg?branch=default
-[Build Status]: https://travis-ci.com/bitbucket/rdipardo/lexilla-dev
