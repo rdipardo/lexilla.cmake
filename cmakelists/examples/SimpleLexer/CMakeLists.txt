@@ -6,6 +6,7 @@ set_target_properties (PROPERTIES
 
 if(MSVC)
     target_compile_options (SimpleLexer PRIVATE -EHsc -std:c++17)
+    target_link_options (SimpleLexer PRIVATE -INCREMENTAL:NO -LTCG -IGNORE:4075)
 else()
     target_compile_options (SimpleLexer PRIVATE
         -fvisibility=hidden -Wno-unused-parameter -Wpedantic --std=c++17)

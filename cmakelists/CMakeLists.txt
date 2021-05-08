@@ -1,10 +1,10 @@
 ### lexilla/CMakeLists.txt
-cmake_minimum_required (VERSION 3.2)
+cmake_minimum_required (VERSION 3.13)
 include (ExternalProject)
 
-project (lexilla VERSION "5.0.0")
+project (lexilla VERSION "5.0.2")
 
-# clones repo if no there's "scintilla" directory on disk;
+# clones repo when there's no `scintilla` directory on disk;
 # otherwise runs `hg pull && hg update`
 externalproject_add (
     scintilla
@@ -170,6 +170,8 @@ include_directories ("${PROJECT_SOURCE_DIR}/include"
 
 if(MSVC)
     set (SUBSYSTEM "")
+    set (CETCOMPAT "")
+
     add_definitions (
         -D_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1
         -D_CRT_SECURE_NO_DEPRECATE=1
@@ -182,36 +184,40 @@ if(MSVC)
         -W4
     )
 
-    if(PLATFORM MATCHES "x64")
+    if(SUPPORT_XP)
+        add_definitions (-D_USING_V110_SDK71_)
+      if(PLATFORM MATCHES "x64")
         set (SUBSYSTEM "-SUBSYSTEM:WINDOWS,5.02")
+      else()
+        set (SUBSYSTEM "-SUBSYSTEM:WINDOWS,5.01")
+      endif()
+    elseif($ENV{WindowsSDKVersion} VERSION_GREATER_EQUAL "10.0.18362.0")
+        message ("-- Enabling control-flow enforcement")
+        message ("   See: https://docs.microsoft.com/en-us/cpp/build/reference/cetcompat")
+        set (CETCOMPAT "-CETCOMPAT")
     elseif(ARM64)
         add_definitions (-D_ARM64_WINAPI_PARTITION_DESKTOP_SDK_AVAILABLE=1)
         set (SUBSYSTEM "-SUBSYSTEM:WINDOWS,10.00")
-    else()
-        set (SUBSYSTEM "-SUBSYSTEM:WINDOWS,5.01")
     endif()
 
-    if(SUPPORT_XP)
-        add_definitions (-D_USING_V110_SDK71_)
-    endif()
-
-    if(DEBUG)
-        add_compile_options (-Od -MTd -DDEBUG)
-    else()
-        set (LDFLAGS_BASE "-LTCG -IGNORE:4197")
-        set (LDFLAGS "-OPT:REF -INCREMENTAL:NO -DEBUG ${LDFLAGS_BASE}")
-        add_compile_options (-O1 -MT -DNDEBUG -GL)
-        set (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${LDFLAGS} ${SUBSYSTEM}")
-        set (CMAKE_STATIC_LINKER_FLAGS "${CMAKE_STATIC_LINKER_FLAGS} ${LDFLAGS_BASE}")
-        set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${LDFLAGS} -IGNORE:4075")
-    endif()
+    set (LDFLAGS_BASE "-IGNORE:4197;${SUBSYSTEM}")
 
     if(QUIET)
         add_compile_options (-nologo)
-        set (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -nologo")
-        set (CMAKE_STATIC_LINKER_FLAGS "${CMAKE_STATIC_LINKER_FLAGS} -nologo")
-        set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -nologo")
+        set (LDFLAGS_BASE "${LDFLAGS_BASE};-nologo")
     endif()
+
+    set (LDFLAGS "-OPT:REF;-LTCG;-IGNORE:4075;${LDFLAGS_BASE};${CETCOMPAT}")
+    string (REPLACE ";" " " EXE_FLAGS "${CMAKE_EXE_LINKER_FLAGS};${LDFLAGS}")
+    set (CMAKE_EXE_LINKER_FLAGS ${EXE_FLAGS})
+
+    if(DEBUG)
+        add_compile_options (-Od -MTd -DDEBUG)
+        set (LDFLAGS "${LDFLAGS};-DEBUG")
+    else()
+        add_compile_options (-O1 -MT -DNDEBUG -GL)
+    endif()
+
 # NOTE: MinGW will cause CMAKE_CXX_COMPILER_ID to return "GNU"
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU" OR
         CMAKE_CXX_COMPILER_ID MATCHES "Clang")
@@ -241,6 +247,14 @@ if(MSVC)
     # build target; use `target_compile_options()` to control scope
     target_compile_options (lexilla PRIVATE -EHsc -std:c++17)
     target_compile_options (lexilla-static PRIVATE -EHsc -std:c++17)
+    # See first "Note" at https://cmake.org/cmake/help/latest/command/target_link_options.html
+    if(LEXILLA_STATIC)
+        string(REPLACE ";" " " LIB_FLAGS "${LDFLAGS_BASE}")
+        set_target_properties (lexilla-static PROPERTIES
+            STATIC_LIBRARY_FLAGS ${LIB_FLAGS})
+    else()
+        target_link_options (lexilla PRIVATE ${LDFLAGS})
+    endif()
 else()
     target_compile_options (lexilla PRIVATE
         -fvisibility=hidden -Wpedantic --std=c++17)
