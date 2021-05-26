@@ -225,11 +225,6 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU" OR
     # -fPIC is automagically added if the SHARED option is passed to
     # add_library() (see below); ditto the -dynamiclib flag
     add_compile_options (-Wall -Wextra)
-
-    if(MINGW)
-        add_compile_options (-mwindows)
-    endif()
-
     if(DEBUG)
         add_definitions (-DDEBUG)
         add_compile_options (-g)
@@ -261,6 +256,9 @@ else()
         -fvisibility=hidden -Wpedantic --std=c++17)
     target_compile_options (lexilla-static PRIVATE
         -fvisibility=hidden -Wpedantic --std=c++17)
+    if(MINGW)
+        target_link_options (lexilla PRIVATE "-mwindows;-Wl,--kill-at")
+    endif()
 endif()
 
 set_target_properties (lexilla lexilla-static PROPERTIES
