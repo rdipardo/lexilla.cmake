@@ -84,6 +84,7 @@ set (LEXERS
     ${PROJECT_SOURCE_DIR}/lexers/LexIndent.cxx
     ${PROJECT_SOURCE_DIR}/lexers/LexInno.cxx
     ${PROJECT_SOURCE_DIR}/lexers/LexJSON.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexJulia.cxx
     ${PROJECT_SOURCE_DIR}/lexers/LexKVIrc.cxx
     ${PROJECT_SOURCE_DIR}/lexers/LexKix.cxx
     ${PROJECT_SOURCE_DIR}/lexers/LexLaTeX.cxx
