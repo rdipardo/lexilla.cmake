@@ -1,8 +1,11 @@
 ### lexilla/CMakeLists.txt
 cmake_minimum_required (VERSION 3.13)
+set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR};${CMAKE_MODULE_PATH}")
+include(ProjectVersion)
 include (ExternalProject)
 
-project (lexilla VERSION "5.0.2")
+project_version (PROJECT_VERSION "version.txt")
+project (lexilla VERSION ${PROJECT_VERSION})
 
 # clones repo when there's no `scintilla` directory on disk;
 # otherwise runs `hg pull && hg update`
