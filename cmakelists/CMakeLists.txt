@@ -159,6 +159,7 @@ set (LEXLIB
     ${PROJECT_SOURCE_DIR}/lexlib/CharacterCategory.cxx
     ${PROJECT_SOURCE_DIR}/lexlib/CharacterSet.cxx
     ${PROJECT_SOURCE_DIR}/lexlib/DefaultLexer.cxx
+    ${PROJECT_SOURCE_DIR}/lexlib/LexAccessor.cxx
     ${PROJECT_SOURCE_DIR}/lexlib/LexerBase.cxx
     ${PROJECT_SOURCE_DIR}/lexlib/LexerModule.cxx
     ${PROJECT_SOURCE_DIR}/lexlib/LexerNoExceptions.cxx
