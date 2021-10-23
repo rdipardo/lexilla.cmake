@@ -5,15 +5,8 @@ set_target_properties (TestLexers PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/test")
 
 if(LEXILLA_STATIC)
-    if(MSVC)
-        set (LEXILLA_STATIC_LIB "${PROJECT_SOURCE_DIR}/bin/lexilla.lib")
-    else()
-        set (LEXILLA_STATIC_LIB "${PROJECT_SOURCE_DIR}/bin/liblexilla.a")
-    endif()
-
-    add_dependencies (TestLexers lexilla-static)
     target_compile_definitions (TestLexers PRIVATE -DLEXILLA_STATIC=1)
-    target_link_libraries (TestLexers PRIVATE ${LEXILLA_STATIC_LIB})
+    target_link_libraries (TestLexers PRIVATE lexilla-static)
 else()
     add_dependencies (TestLexers lexilla)
 endif()
@@ -34,7 +27,7 @@ else()
 endif()
 
 # TODO: have LexillaAccess.cxx load liblexilla.dll when __MINGW32__ is defined
-if(MINGW)
+if(MINGW AND NOT DEFINED LEXILLA_STATIC)
     add_custom_command (TARGET TestLexers
                         PRE_LINK
                         COMMAND ${CMAKE_COMMAND} -E copy

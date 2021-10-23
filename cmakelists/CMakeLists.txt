@@ -274,6 +274,13 @@ set_target_properties (lexilla lexilla-static PROPERTIES
     LIBRARY_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/bin"
     ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/bin"
     RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/bin")
+
+# don't overwrite the dll import lib with the identically named static lib
+if(MSVC)
+     set_target_properties (lexilla-static PROPERTIES
+         ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/win32/lib")
+endif()
+
 # the first target depends on the second
 add_dependencies (lexilla scintilla)
 add_dependencies (lexilla-static scintilla)

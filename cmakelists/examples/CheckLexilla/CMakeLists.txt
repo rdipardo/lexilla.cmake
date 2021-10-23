@@ -29,7 +29,7 @@ if(NOT CMAKE_HOST_WIN32)
     target_link_libraries (CheckLexilla PRIVATE dl)
 endif()
 
-if(MINGW)
+if(MINGW AND NOT DEFINED LEXILLA_STATIC)
     add_custom_command (TARGET CheckLexilla
                         PRE_LINK
                         COMMAND ${CMAKE_COMMAND} -E copy
