@@ -44,6 +44,7 @@ set (LEXERS
     ${PROJECT_SOURCE_DIR}/lexers/LexAVS.cxx
     ${PROJECT_SOURCE_DIR}/lexers/LexAbaqus.cxx
     ${PROJECT_SOURCE_DIR}/lexers/LexAda.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexAsciidoc.cxx
     ${PROJECT_SOURCE_DIR}/lexers/LexAsm.cxx
     ${PROJECT_SOURCE_DIR}/lexers/LexAsn1.cxx
     ${PROJECT_SOURCE_DIR}/lexers/LexBaan.cxx
