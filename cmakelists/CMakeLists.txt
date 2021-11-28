@@ -80,6 +80,7 @@ set (LEXERS
     ${PROJECT_SOURCE_DIR}/lexers/LexForth.cxx
     ${PROJECT_SOURCE_DIR}/lexers/LexFortran.cxx
     ${PROJECT_SOURCE_DIR}/lexers/LexGAP.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexGDScript.cxx
     ${PROJECT_SOURCE_DIR}/lexers/LexGui4Cli.cxx
     ${PROJECT_SOURCE_DIR}/lexers/LexHTML.cxx
     ${PROJECT_SOURCE_DIR}/lexers/LexHaskell.cxx
