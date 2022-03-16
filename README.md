@@ -23,6 +23,7 @@ Or, inside your local working tree:
 
     # if necessary, clean out the submodule path
     # rm -rf ./lexilla
+    git submodule sync
     git submodule update --init --remote
 
 Edit the appropriate build script for your build system; for example:
