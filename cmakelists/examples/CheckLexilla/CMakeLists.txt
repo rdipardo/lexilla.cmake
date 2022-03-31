@@ -3,6 +3,8 @@ add_executable (CheckLexilla "CheckLexilla.c")
 add_dependencies (CheckLexilla SimpleLexer)
 set_target_properties (CheckLexilla PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/examples/CheckLexilla")
+set(CMAKE_INSTALL_RPATH "$<TARGET_FILE_DIR:SimpleLexer>")
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 if(MSVC)
     # https://discourse.cmake.org/t/msvc-flag-tp-is-set-on-a-c-target-when-added-as-a-subdirectory/680
@@ -51,6 +53,6 @@ endif()
 
 add_custom_command (TARGET CheckLexilla
     POST_BUILD
-    COMMAND ${CHECKER} "$<TARGET_FILE:CheckLexilla>" "$<TARGET_FILE:SimpleLexer>"
+    COMMAND ${CHECKER} "$<TARGET_FILE:CheckLexilla>"
     COMMAND ${SHOW_LOG}
     WORKING_DIRECTORY "$<TARGET_FILE_DIR:CheckLexilla>")

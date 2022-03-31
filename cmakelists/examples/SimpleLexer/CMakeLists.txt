@@ -1,6 +1,6 @@
 ### lexilla/examples/SimpleLexer/CMakeLists.txt
 add_library (SimpleLexer SHARED "SimpleLexer.cxx")
-add_dependencies (SimpleLexer lexilla-static)
+add_dependencies (SimpleLexer lexilla)
 set_target_properties (PROPERTIES
     LIBRARY_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/examples/SimpleLexer")
 
@@ -12,4 +12,8 @@ else()
         -fvisibility=hidden -Wno-unused-parameter -Wpedantic --std=c++17)
 endif()
 
-target_link_libraries (SimpleLexer PRIVATE lexilla-static)
+if(CMAKE_HOST_WIN32)
+    target_link_libraries (SimpleLexer PRIVATE lexilla-static)
+else()
+    target_link_libraries (SimpleLexer PRIVATE lexilla)
+endif()
