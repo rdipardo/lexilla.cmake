@@ -179,6 +179,10 @@ if(MSVC)
     set (SUBSYSTEM "")
     set (CETCOMPAT "")
 
+    if(("$ENV{PLATFORM}" MATCHES "ARM") OR ("$ENV{VSCMD_ARG_TGT_ARCH}" MATCHES "ARM"))
+      set (ARM64 "ON" CACHE INTERNAL "Target platform is arm64")
+    endif()
+
     add_definitions (
         -D_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1
         -D_CRT_SECURE_NO_DEPRECATE=1
@@ -198,9 +202,10 @@ if(MSVC)
       else()
         set (SUBSYSTEM "-SUBSYSTEM:WINDOWS,5.01")
       endif()
-    elseif($ENV{WindowsSDKVersion} VERSION_GREATER_EQUAL "10.0.18362.0")
-        message ("-- Enabling control-flow enforcement")
-        message ("   See: https://docs.microsoft.com/en-us/cpp/build/reference/cetcompat")
+    # https://sourceforge.net/p/scintilla/bugs/2324
+    elseif(NOT ARM64 AND $ENV{WindowsSDKVersion} VERSION_GREATER_EQUAL "10.0.18362.0")
+        message (STATUS "Enabling control-flow enforcement")
+        message (STATUS "See: https://docs.microsoft.com/en-us/cpp/build/reference/cetcompat")
         set (CETCOMPAT "-CETCOMPAT")
     elseif(ARM64)
         add_definitions (-D_ARM64_WINAPI_PARTITION_DESKTOP_SDK_AVAILABLE=1)
