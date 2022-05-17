@@ -2,4 +2,14 @@
 cp -vr cmakelists/* lexilla
 cd lexilla
 cmake -Bbuild -H. -DDEBUG=1
-cmake --build ./build -- TestLexers
+cmake --build ./build -- lexilla
+
+cd ../scintilla/gtk
+GTK3=1 make -j8
+
+cd ../..
+if [ ! -d ./scite ]; then
+    hg clone http://hg.code.sf.net/p/scintilla/scite
+fi
+cd scite/gtk
+GTK3=1 make -j8

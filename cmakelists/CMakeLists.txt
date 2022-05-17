@@ -4,8 +4,7 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR};${CMAKE_MODULE_PATH}")
 include(ProjectVersion)
 include (ExternalProject)
 
-project_version (PROJECT_VERSION "version.txt")
-project (lexilla VERSION ${PROJECT_VERSION})
+project (lexilla)
 
 # clones repo when there's no `scintilla` directory on disk;
 # otherwise runs `hg pull && hg update`
@@ -273,9 +272,6 @@ else()
 endif()
 
 set_target_properties (lexilla lexilla-static PROPERTIES
-    # gcc/clang generates a versioned binary and canonical symlink to the same
-    # whenever VERSION is defined
-    VERSION ${PROJECT_VERSION}
     # CXX_STANDARD 17 # convenient, but defaults to gnu++17 whenever it can
     OUTPUT_NAME lexilla # the lib- prefix will be added by gcc/clang and MinGW
     LIBRARY_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/bin"

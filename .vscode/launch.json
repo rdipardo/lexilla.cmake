@@ -1,0 +1,26 @@
+{
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"name": "SciTE",
+			"type": "cppdbg",
+			"request": "launch",
+			"args": [],
+			"stopAtEntry": false,
+			"cwd": "${fileDirname}",
+			"environment": [],
+			"logging": {
+				"moduleLoad": false
+			},
+			"linux": {
+				"program": "${workspaceFolder}/scite/bin/SciTE",
+				"MIMode": "gdb",
+				"miDebuggerPath": "/usr/bin/gdb"
+			},
+			"windows": {
+				"type": "cppvsdbg",
+				"program": "${workspaceFolder}/scite/win32/Debug/SciTE.exe",
+			}
+		}
+	]
+}

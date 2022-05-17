@@ -1,7 +1,9 @@
-Building lexilla with CMake
-===========================
+Building SciTE with lexilla
+==============================
 
 ## External dependencies
+
+- [SciTE][]: free source code editor for Win32, macOS and GNU/Linux <https://scintilla.org/SciTE.html>
 
 - [scintilla][]: cross-platform source code editing component: <https://scintilla.org>
 
@@ -10,71 +12,67 @@ Building lexilla with CMake
 
 ## Testing locally
 
-**Note.** All compilers must support C++20 features, e.g.
-         `std::basic_string<CharT,Traits,Allocator>::ends_with`
+**Note.** All compilers must support C++17 features
 
 Make sure [mercurial](https://www.mercurial-scm.org) is installed.
 
-Clone the source tree and submodules:
+Clone this repository and submodules:
 
-    git clone --recursive https://bitbucket.org/rdipardo/lexilla-dev.git
+    git clone --recursive --branch scite-gtk3 https://bitbucket.org/rdipardo/lexilla-dev.git
 
 Or, inside your local working tree:
 
+    git checkout scite-gtk3
     # if necessary, clean out the submodule path
     # rm -rf ./lexilla
     git submodule sync
     git submodule update --init --remote
 
-Edit the appropriate build script for your build system; for example:
+If not using [CMake](https://cmake.org), first run:
 
-```sh
-# build.sh
+    hg clone http://hg.code.sf.net/p/scintilla/code scintilla
 
-cmake -Bbuild-gnu -H. -G"Unix Makefiles"
+The build script will fetch the SciTE source code in any case, but if you plan to
+edit the source, run this first:
 
-# build all tasks
-cmake --build ./build-gnu
+    hg clone http://hg.code.sf.net/p/scintilla/scite
 
-# build only the static library
-cmake --build ./build-gnu -- lexilla-static
-```
+Your working tree should now look like this:
 
-```bat
-:: build-mingw.bat
+    ├── analyze.bat
+    ├── build.bat
+    ├── build.sh
+    ├── cmakelists
+    ├── lexilla
+    ├── lint.bat
+    ├── lint.sh
+    ├── README.md
+    └── scintilla
+    └── scite
 
-:: configure the test program to link statically
-cmake -Bbuild-mingw -H. -G"MinGW Makefiles" -DLEXILLA_STATIC=1
+### GNU make
+_Requires any 3.x version of the [GTK+ development libraries][]_
 
-:: build and run the test program
-cmake --build ./build-mingw -- TestLexers
-```
+    $ sudo apt-get update
+    $ sudo apt-get install libgtk-3-dev
 
-### On Linux or macOS
-_Requires g++ 9.x or clang on LLVM 10.x_
+To build all libraries and the SciTE text editor:
 
     $ ./build.sh
 
-### On Windows
-_Requires the [MinGW-w64 toolchain][] or the [Visual Studio 2019 Build Tools][]_
+### MSBuild
+_Requires Visual Studio >= 2017 or, at minimum, the [Visual Studio Build Tools][]_
 
-#### MinGW
-
-Run `build-mingw.bat` from a console with `g++` and `mingw32-make` in your `PATH`.
-
-#### NMake
-
-Run `build-nmake.bat` from the [Developer Command Prompt][].
-
+    > build.bat
 
 License
 =======
-The [License.txt][] file describes the conditions under which this software may
-be distributed.
+The [License.txt][] file describes the conditions under which
+this software may be distributed.
 
 [lexilla]: https://github.com/ScintillaOrg/lexilla
 [License.txt]: https://github.com/ScintillaOrg/lexilla/blob/master/License.txt
 [scintilla]: https://sourceforge.net/p/scintilla/code/ci/default/tree
-[MinGW-w64 toolchain]: https://chocolatey.org/packages/mingw
-[Visual Studio 2019 Build Tools]: https://docs.microsoft.com/en-us/cpp/build/vscpp-step-0-installation?view=vs-2019
-[Developer Command Prompt]: https://docs.microsoft.com/en-us/dotnet/framework/tools/developer-command-prompt-for-vs
+[SciTE]: https://sourceforge.net/p/scintilla/scite/ci/default/tree
+[GTK+ development libraries]: https://packages.debian.org/stable/libgtk-3-dev
+[Visual Studio Build Tools]: https://docs.microsoft.com/en-us/cpp/build/vscpp-step-0-installation?view=vs-2019

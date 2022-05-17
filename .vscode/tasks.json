@@ -1,0 +1,45 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Sc1 VC++",
+			"type": "shell",
+			"command": ".\\build.bat ${input:winPlatform}",
+			"options": {
+				"cwd": "${workspaceFolder}",
+				"env": {
+					"VSCODE_BUILD": "1"
+				}
+			},
+			"group": "build",
+			"presentation": {
+				"reveal": "always"
+			},
+			// Use the standard MS compiler pattern to detect errors, warnings and infos
+			"problemMatcher": "$msCompile"
+		},
+		{
+			"label": "SCiTE GTK3",
+			"type": "shell",
+			"command": "./build.sh",
+			"options": {
+				"cwd": "${workspaceFolder}",
+				"env": {"GTK3": "1"}
+			},
+			"group": "build",
+			"presentation": {
+				"reveal": "silent"
+			},
+			"problemMatcher": "$gcc"
+		}		
+	],
+	"inputs": [
+		{
+			"id": "winPlatform",
+			"options": ["Win32", "x86", "x64", "ARM64"],
+			"default": "x86",
+			"description": "Target Windows platform",
+			"type": "pickString"
+		}
+	]
+}
