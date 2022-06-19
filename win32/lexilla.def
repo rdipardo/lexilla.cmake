@@ -1,0 +1,11 @@
+LIBRARY lexilla.dll
+
+EXPORTS
+CreateLexer = _CreateLexer@4
+GetLexerCount = _GetLexerCount@0
+GetLexerFactory = _GetLexerFactory@4
+GetLexerName = _GetLexerName@12
+GetLibraryPropertyNames = _GetLibraryPropertyNames@0
+GetNameSpace = _GetNameSpace@0
+LexerNameFromID = _LexerNameFromID@4
+SetLibraryProperty = _SetLibraryProperty@8

@@ -24,7 +24,7 @@ echo.
 cd lexilla
 @echo on
 cl /analyze /I..\scintilla\include /Ilexlib /Iinclude /std:c++17 /nologo /Zi /TP /MP ^
-  /Wall /wd4820 /wd4365 /wd4514 /wd4625 /wd4626 /wd4710 /wd4996 /wd5204 /EHsc /O1 /MT /DNDEBUG /GL ^
+  /Wall /wd4820 /wd4365 /wd4514 /wd4625 /wd4626 /wd4710 /wd4996 /wd5204 /wd5027 /EHsc /O1 /MT /DNDEBUG /GL ^
   /c "lexers\%FILE_NAME%" | findstr /C:"%FILTER%"
 @echo off
 cd ..

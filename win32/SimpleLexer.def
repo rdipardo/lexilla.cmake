@@ -1,0 +1,8 @@
+LIBRARY SimpleLexer.dll
+
+EXPORTS
+CreateLexer = _CreateLexer@4
+GetLexerCount = _GetLexerCount@0
+GetLexerFactory = _GetLexerFactory@4
+GetLexerName = _GetLexerName@12
+GetNameSpace = _GetNameSpace@0
