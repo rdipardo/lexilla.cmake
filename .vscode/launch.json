@@ -3,22 +3,22 @@
 	"configurations": [
 		{
 			"name": "SciTE",
-			"type": "cppdbg",
+			"type": "cppvsdbg",
 			"request": "launch",
 			"args": [],
 			"stopAtEntry": false,
-			"cwd": "${fileDirname}",
+			"cwd": "${workspaceFolder}",
 			"environment": [],
 			"logging": {
 				"moduleLoad": false
 			},
 			"linux": {
+				"type": "cppdbg",
 				"program": "${workspaceFolder}/scite/bin/SciTE",
 				"MIMode": "gdb",
 				"miDebuggerPath": "/usr/bin/gdb"
 			},
 			"windows": {
-				"type": "cppvsdbg",
 				"program": "${workspaceFolder}/scite/win32/Debug/SciTE.exe",
 			}
 		}

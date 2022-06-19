@@ -14,10 +14,10 @@
 ::  - opens and highlights a test file in SciTE
 :: ----------------------------------------------------------------------
 SETLOCAL
-if NOT "%VSCMD_ARG_TGT_ARCH%"=="x64" GOTO :error
 
 cd ..\lexilla
 xcopy /SY ..\cmakelists\* .
+echo D | xcopy /SY ..\win32\* .\win32
 cmake -Bbuild-msvc -H. -G"NMake Makefiles" -DDEBUG=1
 cmake --build ./build-msvc -- SimpleLexer
 
@@ -33,15 +33,6 @@ echo style.simple.1=$(font.base),fore:#FF0000,bold>> %SCI_PROPS%
 echo Expect every other character to be red!> %EXAMPLE_FILE%
 
 cd ..
-.\build.bat x64 %EXAMPLE_FILE%
-
-SET MSG=
-GOTO :eof
-
-:error
-SET "MSG=The target platform must be x64! Try the 'x64 Native Tools Command Prompt for Visual Studio'"
-
-:eof
-ECHO. %MSG%
+.\build.bat %VSCMD_ARG_TGT_ARCH% %EXAMPLE_FILE%
 
 ENDLOCAL
