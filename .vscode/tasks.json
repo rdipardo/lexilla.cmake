@@ -30,7 +30,17 @@
 			"presentation": {
 				"reveal": "silent"
 			},
-			"problemMatcher": "$gcc"
+			"problemMatcher": {
+				// From https://github.com/microsoft/vscode/blob/c416626b45b78bfa256b635999cdc70d94b8adf4/src/vs/workbench/contrib/tasks/common/problemMatcher.ts#L1225
+				"pattern":[
+					{
+						"regexp": "^(\\S.*)\\((\\d+|\\d+,\\d+|\\d+,\\d+,\\d+,\\d+)\\):\\s+(error|warning|info)\\s+(C\\d+)\\s*:\\s*(.*)$",
+						"file": 1,
+						"location": 2,
+						"message": 5
+					}
+				]
+			}
 		}		
 	],
 	"inputs": [

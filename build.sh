@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -e
 cp -vr cmakelists/* lexilla
 cd lexilla
 cmake -Bbuild -H. -DDEBUG=1

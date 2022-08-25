@@ -1,0 +1,17 @@
+-I
+scintilla/include
+-I
+lexilla/include
+-I
+lexilla/lexlib
+-I
+lexilla/access
+-DDEBUG
+--std=c++17
+-Wall
+-Wextra
+-Wpedantic
+-g
+-fPIC
+-fvisibility=hidden
+-fmessage-length=0
