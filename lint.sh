@@ -2,7 +2,7 @@
 FILE_NAME='*.cxx'
 FILTER='*.cxx'
 
-if [ ! -z "$1" ]; then
+if [ -n "$1" ]; then
   FILE_NAME="${1%.cxx}.cxx"
   FILTER="${1%.cxx}.cxx"
 fi
