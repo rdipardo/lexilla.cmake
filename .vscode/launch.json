@@ -13,14 +13,22 @@
 			},
 			"windows": {
 				"type": "cppvsdbg",
-				"program": "${workspaceFolder}/scite/win32/Debug/SciTE.exe",
-				"preLaunchTask": "Sc1 VC++",
+				"program": "${workspaceFolder}/scite/win32/${input:winPlatform}/Debug/SciTE.exe",
 				"stopAtEntry": false,
 				"environment": [],
 				"logging": {
 					"moduleLoad": false
 				}
 			}
+		}
+	],
+	"inputs": [
+		{
+			"id": "winPlatform",
+			"options": ["", "x64"],
+			"default": "",
+			"description": "Target Windows platform",
+			"type": "pickString"
 		}
 	]
 }
