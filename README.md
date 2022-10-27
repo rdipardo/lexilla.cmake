@@ -71,7 +71,7 @@ The [License.txt][] file describes the conditions under which
 this software may be distributed.
 
 [lexilla]: https://github.com/ScintillaOrg/lexilla
-[License.txt]: https://github.com/ScintillaOrg/lexilla/blob/master/License.txt
+[License.txt]: https://www.scintilla.org/License.txt
 [scintilla]: https://sourceforge.net/p/scintilla/code/ci/default/tree
 [SciTE]: https://sourceforge.net/p/scintilla/scite/ci/default/tree
 [GTK+ development libraries]: https://packages.debian.org/stable/libgtk-3-dev
