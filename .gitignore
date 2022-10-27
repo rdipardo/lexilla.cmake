@@ -76,6 +76,7 @@ compile_commands.json
 .hg
 **.nativecodeanalysis.xml
 scintilla/
+scite/
 build*/
 CMakeLists.txt.user
 CMakeCache.txt

@@ -73,7 +73,7 @@ The [License.txt][] file describes the conditions under which this software may
 be distributed.
 
 [lexilla]: https://github.com/ScintillaOrg/lexilla
-[License.txt]: https://github.com/ScintillaOrg/lexilla/blob/master/License.txt
+[License.txt]: https://www.scintilla.org/License.txt
 [scintilla]: https://sourceforge.net/p/scintilla/code/ci/default/tree
 [MinGW-w64 toolchain]: https://chocolatey.org/packages/mingw
 [Visual Studio 2019 Build Tools]: https://docs.microsoft.com/en-us/cpp/build/vscpp-step-0-installation?view=vs-2019

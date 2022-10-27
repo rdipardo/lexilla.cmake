@@ -16,4 +16,12 @@ cppcheck --enable=warning,performance,style,portability --suppressions-list=lexi
 	--template=gcc --quiet "lexilla\lexers\%FILE_NAME%" | findstr /C:"%FILTER%"
 @echo off
 echo.
+
+where clang 2>NUL: 1>NUL:
+IF %ERRORLEVEL%==0 (
+  @echo "Linting with Clang . . . ."
+  @echo.
+  clang -I lexilla/include -I lexilla/access -I lexilla/lexlib -I scintilla/include -Wall -Wextra -pedantic --std=c++17 ^
+    -fsyntax-only -DNDEBUG -D_CRT_SECURE_NO_DEPRECATE=1 "lexilla/lexers/%FILE_NAME%"
+)
 ENDLOCAL
