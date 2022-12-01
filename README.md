@@ -26,45 +26,37 @@ Or, inside your local working tree:
     git submodule sync
     git submodule update --init --remote
 
-Edit the appropriate build script for your build system; for example:
-
-```sh
-# build.sh
-
-cmake -Bbuild-gnu -H. -G"Unix Makefiles"
-
-# build all tasks
-cmake --build ./build-gnu
-
-# build only the static library
-cmake --build ./build-gnu -- lexilla-static
-```
-
-```bat
-:: build-mingw.bat
-
-:: configure the test program to link statically
-cmake -Bbuild-mingw -H. -G"MinGW Makefiles" -DLEXILLA_STATIC=1
-
-:: build and run the test program
-cmake --build ./build-mingw -- TestLexers
-```
+Pass the name of a CMake task to the appropriate build script for your environment; for example:
 
 ### On Linux or macOS
 _Requires g++ 9.x or clang on LLVM 10.x_
 
+To build and run the lexer test driver (the default task):
+
     $ ./build.sh
 
-### On Windows
-_Requires the [MinGW-w64 toolchain][] or the [Visual Studio 2019 Build Tools][]_
+To build all tasks:
+
+    $ ./build.sh all
+
+To build only the static library:
+
+    $ ./build.sh lexilla-static
 
 #### MinGW
+_Requires the [MinGW-w64 toolchain][]_
 
-Run `build-mingw.bat` from a console with `g++` and `mingw32-make` in your `PATH`.
+To build and run the test program, start a console with `g++` and `mingw32-make`
+in your `PATH`, then run
+
+    > build-mingw.bat CheckLexilla
 
 #### NMake
+_Requires, at minimum, the [Visual Studio Build Tools][], edition 2019 or later_
 
-Run `build-nmake.bat` from the [Developer Command Prompt][].
+From the [Developer Command Prompt][], run
+
+    > build-nmake.bat
 
 
 License
@@ -75,6 +67,6 @@ be distributed.
 [lexilla]: https://github.com/ScintillaOrg/lexilla
 [License.txt]: https://www.scintilla.org/License.txt
 [scintilla]: https://sourceforge.net/p/scintilla/code/ci/default/tree
-[MinGW-w64 toolchain]: https://chocolatey.org/packages/mingw
-[Visual Studio 2019 Build Tools]: https://docs.microsoft.com/en-us/cpp/build/vscpp-step-0-installation?view=vs-2019
+[MinGW-w64 toolchain]: https://www.mingw-w64.org
+[Visual Studio Build Tools]: https://docs.microsoft.com/en-us/cpp/build/vscpp-step-0-installation?view=vs-2019
 [Developer Command Prompt]: https://docs.microsoft.com/en-us/dotnet/framework/tools/developer-command-prompt-for-vs
