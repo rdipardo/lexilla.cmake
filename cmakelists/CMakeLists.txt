@@ -227,7 +227,7 @@ if(MSVC)
         add_compile_options (-Od -MTd -DDEBUG)
         set (LDFLAGS "${LDFLAGS};-DEBUG")
     else()
-        add_compile_options (-O1 -MT -DNDEBUG -GL)
+        add_compile_options (-O2 -MT -DNDEBUG -GL)
     endif()
 
 # NOTE: MinGW will cause CMAKE_CXX_COMPILER_ID to return "GNU"
@@ -241,7 +241,7 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU" OR
         add_compile_options (-g)
     else()
         add_definitions (-DNDEBUG)
-        add_compile_options (-Os)
+        add_compile_options (-O3)
     endif()
 endif()
 
