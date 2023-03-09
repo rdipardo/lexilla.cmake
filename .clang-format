@@ -11,4 +11,5 @@ AlignOperands: true
 BreakBeforeBinaryOperators: None
 IndentCaseLabels: true
 AlignTrailingComments: true
+PackConstructorInitializers: CurrentLine
 ColumnLimit: 120
