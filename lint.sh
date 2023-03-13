@@ -11,14 +11,15 @@ echo "Running cppcheck . . . ."
 set -x
 cppcheck --enable=warning,performance,style,portability --suppressions-list=lexilla/cppcheck.suppress --max-configs=100 \
 	-I lexilla/include -I lexilla/access -I lexilla/lexlib -I scintilla/include "-DSTDMETHODIMP_(type) type STDMETHODCALLTYPE" \
-	--template=gcc --quiet "lexilla/lexers/${FILE_NAME}" | grep -i "${FILTER}"
+	--template=gcc --quiet --platform=native "lexilla/lexers/${FILE_NAME}" | grep -i "${FILTER}"
 
 set +x
-if [ $(command -v clang) ]; then
+if [ "$(command -v clang)" ]; then
   echo
-  echo "Linting with Clang . . . ."
+  echo "Linting with Clang-Tidy . . . ."
   set -x
-  clang -I lexilla/include -I lexilla/access -I lexilla/lexlib -I scintilla/include -Wall -Wextra -pedantic --std=c++17 \
-    -fsyntax-only -DNDEBUG "lexilla/lexers/${FILE_NAME}"
+  clang-tidy "lexilla/lexers/${FILE_NAME}" --config="" -- \
+    -I lexilla/include -I lexilla/access -I lexilla/lexlib -I scintilla/include -Wall -Wextra -pedantic --std=c++17 \
+    -fsyntax-only -DNDEBUG -D_CRT_SECURE_NO_DEPRECATE=1
   set +x
 fi
