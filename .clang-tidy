@@ -1,0 +1,6 @@
+Checks: 'clang-diagnostic-*,clang-analyzer-*,performance-*,portability-*,bugprone-*,cppcoreguidelines-*,-*avoid-c-arrays,-*avoid-magic-numbers,-*array-to-pointer-decay,-*constant-array-index,-*easily-swappable-parameters,-*explicit-virtual-functions,-*signed-char-misuse'
+WarningsAsErrors: ''
+HeaderFilterRegex: ''
+AnalyzeTemporaryDtors: false
+UseColor : true
+FormatStyle: 'none'
