@@ -1,11 +1,11 @@
 -I
- ./../../lexilla/include
+./../lexilla/include
 -I
- ./../../lexilla/access
+./../lexilla/access
 -I
- ./../../scintilla/include
+./../scintilla/include
 -I
- ./../src
+./src
 -I
 ./../lua/src
 -I

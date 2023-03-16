@@ -9,10 +9,9 @@ cd ../scintilla/gtk
 GTK3=1 make -j8
 
 cd ../..
-if [ ! -d ./scite ]; then
-    hg clone http://hg.code.sf.net/p/scintilla/scite
-    cp -v compile_flags_scite.txt scite/compile_flags.txt
-    cp -vr .vscode scite/
-fi
+[ ! -d ./scite ] && hg clone http://hg.code.sf.net/p/scintilla/scite
+[ ! -d scite/.vscode ] && cp -vr .vscode scite/
+[ ! -f scite/compile_flags.txt ] && \
+  cp -v compile_flags_scite.txt scite/compile_flags.txt
 cd scite/gtk
 GTK3=1 make -j8
