@@ -18,7 +18,7 @@ if [ "$(command -v clang)" ]; then
   echo
   echo "Linting with Clang-Tidy . . . ."
   set -x
-  clang-tidy "lexilla/lexers/${FILE_NAME}" --config="" -- \
+  clang-tidy "lexilla/lexers/${FILE_NAME}" -- \
     -I lexilla/include -I lexilla/access -I lexilla/lexlib -I scintilla/include -Wall -Wextra -pedantic --std=c++17 \
     -fsyntax-only -DNDEBUG -D_CRT_SECURE_NO_DEPRECATE=1
   set +x

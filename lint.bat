@@ -21,7 +21,7 @@ where clang 2>NUL: 1>NUL:
 IF %ERRORLEVEL%==0 (
   @echo "Linting with Clang-Tidy . . . ."
   @echo.
-  clang-tidy "lexilla/lexers/%FILE_NAME%" --config="" -- ^
+  clang-tidy "lexilla/lexers/%FILE_NAME%" -- ^
     -I lexilla/include -I lexilla/access -I lexilla/lexlib -I scintilla/include -Wall -Wextra -pedantic --std=c++17 ^
     -fsyntax-only -DNDEBUG -D_CRT_SECURE_NO_DEPRECATE=1
 )
