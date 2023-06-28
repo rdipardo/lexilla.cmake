@@ -6,7 +6,7 @@ cmake -Bbuild -H. -DDEBUG=1
 cmake --build ./build -- lexilla
 
 cd ../scintilla/gtk
-GTK3=1 make -j8
+DEBUG=1 GTK3=1 make -j8
 
 cd ../..
 [ ! -d ./scite ] && hg clone http://hg.code.sf.net/p/scintilla/scite
@@ -14,4 +14,4 @@ cd ../..
 [ ! -f scite/compile_flags.txt ] && \
   cp -v compile_flags_scite.txt scite/compile_flags.txt
 cd scite/gtk
-GTK3=1 make -j8
+DEBUG=1 GTK3=1 make -j8

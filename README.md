@@ -41,14 +41,20 @@ Your working tree should now look like this:
 
     ├── analyze.bat
     ├── build.bat
+    ├── build-mingw.bat
+    ├── build-nmake.bat
     ├── build.sh
     ├── cmakelists
+    ├── compile_flags_scite.txt
+    ├── compile_flags.txt
+    ├── demo
     ├── lexilla
     ├── lint.bat
     ├── lint.sh
     ├── README.md
-    └── scintilla
-    └── scite
+    ├── scintilla
+    ├── scite
+    └── win32
 
 ### GNU make
 _Requires any 3.x version of the [GTK+ development libraries][]_
