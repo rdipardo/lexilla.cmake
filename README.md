@@ -13,8 +13,6 @@ Building lexilla with CMake
 **Note.** All compilers must support C++20 features, e.g.
          `std::basic_string<CharT,Traits,Allocator>::ends_with`
 
-Make sure [mercurial](https://www.mercurial-scm.org) is installed.
-
 Clone the source tree and submodules:
 
     git clone --recursive https://bitbucket.org/rdipardo/lexilla-dev.git
