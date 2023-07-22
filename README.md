@@ -28,10 +28,6 @@ Or, inside your local working tree:
     git submodule sync
     git submodule update --init --remote
 
-If not using [CMake](https://cmake.org), first run:
-
-    hg clone http://hg.code.sf.net/p/scintilla/code scintilla
-
 The build script will fetch the SciTE source code in any case, but if you plan to
 edit the source, run this first:
 

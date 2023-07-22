@@ -78,6 +78,5 @@ compile_commands.json
 scintilla/
 scite/
 **build*/
-CMakeLists.txt
 !cmakelists/**
 !.vscode/

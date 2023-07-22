@@ -2,19 +2,16 @@
 setlocal
 SET "PLATFORM=x86"
 if "%1" NEQ "" (SET "PLATFORM=%1")
-if not exist scintilla (hg clone http://hg.code.sf.net/p/scintilla/code scintilla)
-pushd scintilla
-hg pull
-hg up -C
-popd
 
 if not exist scite (hg clone http://hg.code.sf.net/p/scintilla/scite)
 
+cmake -Bscite/.cmake-win -H.
+cmake --build scite/.cmake-win
 pushd scite\win32
 @rem  Make sure to trim any trailing backslash, e.g.:
 @rem  echo %WindowsSDKVersion%
 @rem  => 10.0.18362.0\
-msbuild /nologo /v:m /p:Platform=%PLATFORM%;WindowsTargetPlatformVersion=%WindowsSDKVersion:~0,-1%
+msbuild /nologo /v:m /p:PlatformToolSet=v143;Platform=%PLATFORM%;WindowsTargetPlatformVersion=%WindowsSDKVersion:~0,-1%
 popd
 
 if "%VSCODE_BUILD%"=="" goto :Launch

@@ -1,6 +1,6 @@
 ### lexilla/examples/CheckLexilla/CMakeLists.txt
 add_executable (CheckLexilla "CheckLexilla.c")
-add_dependencies (CheckLexilla SimpleLexer)
+add_dependencies (CheckLexilla lexilla)
 set_target_properties (CheckLexilla PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/examples/CheckLexilla")
 set(CMAKE_INSTALL_RPATH "$<TARGET_FILE_DIR:SimpleLexer>")

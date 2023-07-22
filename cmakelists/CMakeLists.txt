@@ -1,23 +1,20 @@
 ### lexilla/CMakeLists.txt
-cmake_minimum_required (VERSION 3.13)
-set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR};${CMAKE_MODULE_PATH}")
-include(ProjectVersion)
-include (ExternalProject)
+cmake_minimum_required (VERSION 3.14)
+include (get_cpm.cmake)
 
 project (lexilla)
 
-# clones repo when there's no `scintilla` directory on disk;
-# otherwise runs `hg pull && hg update`
-externalproject_add (
-    scintilla
-    PREFIX "scintilla"
-    HG_REPOSITORY "http://hg.code.sf.net/p/scintilla/code"
-    SOURCE_DIR "../../scintilla"
-    CONFIGURE_COMMAND ""
-    BUILD_COMMAND "" # required if project has no CMakeLists.txt
-    TEST_COMMAND ""
-    INSTALL_COMMAND "" # might be used to copy headers to system directories
+CPMAddPackage (
+  NAME scintilla
+  VERSION 5.3.5
+  URL https://www.scintilla.org/scintilla535.zip
+  SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../scintilla"
+  DOWNLOAD_ONLY YES
 )
+
+if (NOT scintilla_ADDED)
+  message (FATAL_ERROR "Cannot build without Scintilla source code.")
+endif()
 
 # HACK: prevent cmake from automagically populating our flags, even if they've
 # been cached already
@@ -170,7 +167,7 @@ set (LEXLIB
     ${PROJECT_SOURCE_DIR}/lexlib/WordList.cxx)
 
 include_directories ("${PROJECT_SOURCE_DIR}/include"
-                     "../scintilla/include"
+                     "${scintilla_SOURCE_DIR}/include"
                      "${PROJECT_SOURCE_DIR}/lexlib"
                      "${PROJECT_SOURCE_DIR}/access")
 
@@ -287,9 +284,6 @@ if(MSVC)
          ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/win32/lib")
 endif()
 
-# the first target depends on the second
-add_dependencies (lexilla scintilla)
-add_dependencies (lexilla-static scintilla)
 # build and run test applications
 add_subdirectory ("${PROJECT_SOURCE_DIR}/test")
 add_subdirectory ("${PROJECT_SOURCE_DIR}/examples/SimpleLexer")
