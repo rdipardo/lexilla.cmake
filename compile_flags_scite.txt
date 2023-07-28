@@ -60,3 +60,4 @@
 -Wextra
 -Wno-misleading-indentation
 -fmessage-length=0
+-xc++
