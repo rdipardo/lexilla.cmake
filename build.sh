@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -e
 cp -vr cmakelists/* lexilla
+cp .gitignore lexilla
 [ ! -d ./scite ] && hg clone http://hg.code.sf.net/p/scintilla/scite
 [ ! -d scite/.vscode ] && cp -vr .vscode scite/
 [ ! -f scite/compile_flags.txt ] && \
