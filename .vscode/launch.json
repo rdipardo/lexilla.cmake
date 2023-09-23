@@ -1,0 +1,20 @@
+{
+	"version": "2.0.0",
+	"configurations": [
+		{
+			"name": "TestLexers",
+			"type": "lldb",
+			"request": "launch",
+			"program": "${workspaceFolder}/lexilla/test/TestLexers",
+			"args": [],
+			"cwd": "${workspaceFolder}",
+			"linux": {
+				"preLaunchTask": "Build (GCC)"
+			},
+			"windows": {
+				"type": "cppvsdbg",
+				"preLaunchTask": "Build (MSVC,MinGW)"
+			}
+		}
+	]
+}

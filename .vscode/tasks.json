@@ -1,0 +1,79 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Build (MSVC,MinGW)",
+			"type": "shell",
+			"command": ".\\build-${input:winToolchain}.bat ${input:cmakeTask}",
+			"options": {
+				"cwd": "${workspaceFolder}",
+				"env": {
+					"DEBUG": "1"
+				}
+			},
+			"group": "build",
+			"presentation": {
+				"reveal": "always"
+			},
+			"problemMatcher": "$msCompile"
+		},
+		{
+			"label": "Build (GCC)",
+			"type": "shell",
+			"command": "./build.sh ${input:cmakeTask}",
+			"options": {
+				"cwd": "${workspaceFolder}",
+				"env": {
+					"DEBUG": "1"
+				}
+			},
+			"group": {
+				"kind": "build",
+				"isDefault": true,
+			},
+			"presentation": {
+				"reveal": "always"
+			},
+			"problemMatcher": {
+				"pattern": [
+					{
+						"regexp": "^(\\S.*)\\((\\d+|\\d+,\\d+|\\d+,\\d+,\\d+,\\d+)\\):\\s+(error|warning|info)\\s+(C\\d+)\\s*:\\s*(.*)$",
+						"file": 1,
+						"location": 2,
+						"message": 5
+					}
+				]
+			}
+		}
+	],
+	"inputs": [
+		{
+			"id": "cmakeTask",
+			"options": [
+				"all",
+				"CheckLexilla",
+				"clean",
+				"depend",
+				"edit_cache",
+				"lexilla",
+				"lexilla-static",
+				"rebuild_cache",
+				"SimpleLexer",
+				"TestLexers"
+			],
+			"default": "TestLexers",
+			"description": "CMake Build Task",
+			"type": "pickString"
+		},
+		{
+			"id": "winToolchain",
+			"options": [
+				"nmake",
+				"mingw"
+			],
+			"default": "nmake",
+			"description": "Target Compiler Toolchain",
+			"type": "pickString"
+		}
+	]
+}
