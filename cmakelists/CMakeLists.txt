@@ -164,6 +164,7 @@ set (LEXLIB
     ${PROJECT_SOURCE_DIR}/lexlib/LexerSimple.cxx
     ${PROJECT_SOURCE_DIR}/lexlib/PropSetSimple.cxx
     ${PROJECT_SOURCE_DIR}/lexlib/StyleContext.cxx
+    ${PROJECT_SOURCE_DIR}/lexlib/InList.cxx
     ${PROJECT_SOURCE_DIR}/lexlib/WordList.cxx)
 
 include_directories ("${PROJECT_SOURCE_DIR}/include"
