@@ -3,10 +3,8 @@ setlocal
 SET "PLATFORM=x86"
 if "%1" NEQ "" (SET "PLATFORM=%1")
 
-if not exist scite (hg clone http://hg.code.sf.net/p/scintilla/scite)
-
-cmake -Bscite/.cmake-win -H.
-cmake --build scite/.cmake-win
+cmake -B.cmake-win -H.
+cmake --build .cmake-win
 pushd scite\win32
 @rem  Make sure to trim any trailing backslash, e.g.:
 @rem  echo %WindowsSDKVersion%

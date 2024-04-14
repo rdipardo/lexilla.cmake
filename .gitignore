@@ -75,6 +75,7 @@ build.ninja
 compile_commands.json
 .hg
 **.nativecodeanalysis.xml
+.cmake*/
 scintilla/
 scite/
 **build*/

@@ -14,8 +14,6 @@ Building SciTE with lexilla
 
 **Note.** All compilers must support C++17 features
 
-Make sure [mercurial](https://www.mercurial-scm.org) is installed.
-
 Clone this repository and submodules:
 
     git clone --recursive --branch scite-gtk3 https://bitbucket.org/rdipardo/lexilla-dev.git
@@ -28,10 +26,7 @@ Or, inside your local working tree:
     git submodule sync
     git submodule update --init --remote
 
-The build script will fetch the SciTE source code in any case, but if you plan to
-edit the source, run this first:
-
-    hg clone http://hg.code.sf.net/p/scintilla/scite
+CMake will fetch the SciTE source code when ``build.sh`` or ``build.bat``` is run.
 
 Your working tree should now look like this:
 
@@ -41,6 +36,7 @@ Your working tree should now look like this:
     ├── build-nmake.bat
     ├── build.sh
     ├── cmakelists
+    ├── CMakeLists.txt
     ├── compile_flags_scite.txt
     ├── compile_flags.txt
     ├── demo
