@@ -3,6 +3,8 @@ setlocal
 SET "PLATFORM=x86"
 if "%1" NEQ "" (SET "PLATFORM=%1")
 
+xcopy /SY cmakelists\* lexilla
+xcopy /DIY .gitignore lexilla
 cmake -B.cmake-win -H.
 cmake --build .cmake-win
 pushd scite\win32
