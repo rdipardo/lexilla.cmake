@@ -6,8 +6,8 @@ project (scite
         LANGUAGES NONE)
 CPMAddPackage (
   NAME scite-src
-  VERSION 5.4.3
-  URL https://sourceforge.net/code-snapshots/hg/s/sc/scintilla/scite/scintilla-scite-d0a288238c05e238577d907945245cdd87d0c957.zip
+  VERSION 5.5.0
+  URL https://sourceforge.net/code-snapshots/hg/s/sc/scintilla/scite/scintilla-scite-2bbb4ef4177f7edcf9a441ae971f68440587cb41.zip
   SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/scite"
   DOWNLOAD_ONLY YES
 )

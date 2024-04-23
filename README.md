@@ -26,7 +26,7 @@ Or, inside your local working tree:
     git submodule sync
     git submodule update --init --remote
 
-CMake will fetch the SciTE source code when ``build.sh`` or ``build.bat``` is run.
+CMake will fetch the SciTE source code when ``build.sh`` or ``build.bat`` is run.
 
 Your working tree should now look like this:
 
