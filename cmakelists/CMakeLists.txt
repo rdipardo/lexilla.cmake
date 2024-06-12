@@ -160,7 +160,6 @@ set (LEXLIB
     ${PROJECT_SOURCE_DIR}/lexlib/LexAccessor.cxx
     ${PROJECT_SOURCE_DIR}/lexlib/LexerBase.cxx
     ${PROJECT_SOURCE_DIR}/lexlib/LexerModule.cxx
-    ${PROJECT_SOURCE_DIR}/lexlib/LexerNoExceptions.cxx
     ${PROJECT_SOURCE_DIR}/lexlib/LexerSimple.cxx
     ${PROJECT_SOURCE_DIR}/lexlib/PropSetSimple.cxx
     ${PROJECT_SOURCE_DIR}/lexlib/StyleContext.cxx
