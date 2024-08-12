@@ -3,6 +3,8 @@ set -e
 cp -vr cmakelists/* lexilla
 cp .gitignore lexilla
 cmake -B.cmake -H. -DDEBUG=1
+mv scite/scite/* scite/
+rm -rf scite/lexilla scite/scintilla
 cmake --build .cmake -- scintilla
 pushd scite/gtk
 make -q || DEBUG=1 GTK3=1 make -j8 

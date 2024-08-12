@@ -6,6 +6,8 @@ if "%1" NEQ "" (SET "PLATFORM=%1")
 xcopy /SY cmakelists\* lexilla
 xcopy /DIY .gitignore lexilla
 cmake -B.cmake-win -H.
+xcopy /DEIY scite\scite\* scite
+rmdir /s /q scite\lexilla scite\scintilla scite\scite
 cmake --build .cmake-win
 pushd scite\win32
 @rem  Make sure to trim any trailing backslash, e.g.:
