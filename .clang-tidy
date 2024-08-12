@@ -12,6 +12,7 @@ Checks: |
   -*easily-swappable-parameters,
   -*explicit-virtual-functions,
   -*signed-char-misuse,
+  -*switch-missing-default-case,
   -*avoid-non-const-global-variables
 WarningsAsErrors: ''
 HeaderFilterRegex: ''
