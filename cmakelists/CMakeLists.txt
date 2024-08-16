@@ -146,6 +146,7 @@ set (LEXERS
     ${PROJECT_SOURCE_DIR}/lexers/LexTCL.cxx
     ${PROJECT_SOURCE_DIR}/lexers/LexTCMD.cxx
     ${PROJECT_SOURCE_DIR}/lexers/LexTeX.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexTOML.cxx
     ${PROJECT_SOURCE_DIR}/lexers/LexTxt2tags.cxx
     ${PROJECT_SOURCE_DIR}/lexers/LexVB.cxx
     ${PROJECT_SOURCE_DIR}/lexers/LexVHDL.cxx
