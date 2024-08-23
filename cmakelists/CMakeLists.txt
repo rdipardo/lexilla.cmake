@@ -6,8 +6,8 @@ project (lexilla)
 
 CPMAddPackage (
   NAME scintilla
-  VERSION 5.5.1
-  URL https://www.scintilla.org/scintilla551.zip
+  VERSION 5.5.2
+  URL https://www.scintilla.org/scintilla552.zip
   SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../scintilla"
   DOWNLOAD_ONLY YES
 )
@@ -144,6 +144,7 @@ set (LEXERS
     ${PROJECT_SOURCE_DIR}/lexers/LexTCMD.cxx
     ${PROJECT_SOURCE_DIR}/lexers/LexTeX.cxx
     ${PROJECT_SOURCE_DIR}/lexers/LexTOML.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexTroff.cxx
     ${PROJECT_SOURCE_DIR}/lexers/LexTxt2tags.cxx
     ${PROJECT_SOURCE_DIR}/lexers/LexVB.cxx
     ${PROJECT_SOURCE_DIR}/lexers/LexVHDL.cxx
