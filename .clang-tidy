@@ -11,11 +11,11 @@ Checks: |
   -*constant-array-index,
   -*easily-swappable-parameters,
   -*explicit-virtual-functions,
+  -*owning-memory,
   -*signed-char-misuse,
   -*switch-missing-default-case,
   -*avoid-non-const-global-variables
 WarningsAsErrors: ''
 HeaderFilterRegex: ''
-AnalyzeTemporaryDtors: false
 UseColor : true
 FormatStyle: 'none'
