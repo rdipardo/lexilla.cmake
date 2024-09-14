@@ -63,6 +63,7 @@ set (LEXERS
     ${PROJECT_SOURCE_DIR}/lexers/LexD.cxx
     ${PROJECT_SOURCE_DIR}/lexers/LexDMAP.cxx
     ${PROJECT_SOURCE_DIR}/lexers/LexDMIS.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexDart.cxx
     ${PROJECT_SOURCE_DIR}/lexers/LexDataflex.cxx
     ${PROJECT_SOURCE_DIR}/lexers/LexDiff.cxx
     ${PROJECT_SOURCE_DIR}/lexers/LexECL.cxx
