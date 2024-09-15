@@ -152,7 +152,8 @@ set (LEXERS
     ${PROJECT_SOURCE_DIR}/lexers/LexVerilog.cxx
     ${PROJECT_SOURCE_DIR}/lexers/LexVisualProlog.cxx
     ${PROJECT_SOURCE_DIR}/lexers/LexX12.cxx
-    ${PROJECT_SOURCE_DIR}/lexers/LexYAML.cxx)
+    ${PROJECT_SOURCE_DIR}/lexers/LexYAML.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexZig.cxx)
 
 set (LEXLIB
     ${PROJECT_SOURCE_DIR}/src/Lexilla.cxx
