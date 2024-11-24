@@ -106,6 +106,7 @@ set (LEXERS
     ${PROJECT_SOURCE_DIR}/lexers/LexMySQL.cxx
     ${PROJECT_SOURCE_DIR}/lexers/LexNim.cxx
     ${PROJECT_SOURCE_DIR}/lexers/LexNimrod.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexNix.cxx
     ${PROJECT_SOURCE_DIR}/lexers/LexNsis.cxx
     ${PROJECT_SOURCE_DIR}/lexers/LexNull.cxx
     ${PROJECT_SOURCE_DIR}/lexers/LexOScript.cxx
