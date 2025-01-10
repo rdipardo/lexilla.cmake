@@ -6,8 +6,8 @@ project (lexilla)
 
 CPMAddPackage (
   NAME scintilla
-  VERSION 5.5.3
-  URL https://www.scintilla.org/scintilla553.zip
+  VERSION 5.5.4
+  URL https://www.scintilla.org/scintilla554.zip
   SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../scintilla"
   DOWNLOAD_ONLY YES
 )
