@@ -6,8 +6,8 @@ project (scite
         LANGUAGES NONE)
 CPMAddPackage (
   NAME scite-src
-  VERSION 5.5.4
-  URL https://www.scintilla.org/scite554.zip
+  VERSION 5.5.5
+  URL https://www.scintilla.org/scite555.zip
   SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/scite"
   DOWNLOAD_ONLY YES
 )
