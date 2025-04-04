@@ -6,8 +6,8 @@ project (lexilla)
 
 CPMAddPackage (
   NAME scintilla
-  VERSION 5.5.5
-  URL https://www.scintilla.org/scintilla555.zip
+  VERSION 5.5.6
+  URL https://www.scintilla.org/scintilla556.zip
   SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../scintilla"
   DOWNLOAD_ONLY YES
 )
@@ -204,6 +204,7 @@ if(MSVC)
         set (SUBSYSTEM "-SUBSYSTEM:WINDOWS,5.01")
       endif()
     # https://sourceforge.net/p/scintilla/bugs/2324
+    # https://sourceforge.net/p/scintilla/feature-requests/1546
     elseif(NOT ARM64 AND $ENV{WindowsSDKVersion} VERSION_GREATER_EQUAL "10.0.18362.0")
         message (STATUS "Enabling control-flow enforcement")
         message (STATUS "See: https://docs.microsoft.com/en-us/cpp/build/reference/cetcompat")
