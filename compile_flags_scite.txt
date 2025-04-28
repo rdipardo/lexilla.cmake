@@ -54,7 +54,7 @@
 -DGTK
 -DPIXMAP_PATH=/usr/share/pixmaps
 -DSYSCONF_PATH=/usr/share/scite
---std=c++17
+--std=c++20
 -Wall
 -pedantic
 -Wextra
