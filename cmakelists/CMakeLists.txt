@@ -133,6 +133,7 @@ set (LEXERS
     ${PROJECT_SOURCE_DIR}/lexers/LexRuby.cxx
     ${PROJECT_SOURCE_DIR}/lexers/LexRust.cxx
     ${PROJECT_SOURCE_DIR}/lexers/LexSAS.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexSINEX.cxx
     ${PROJECT_SOURCE_DIR}/lexers/LexSML.cxx
     ${PROJECT_SOURCE_DIR}/lexers/LexSQL.cxx
     ${PROJECT_SOURCE_DIR}/lexers/LexSTTXT.cxx
