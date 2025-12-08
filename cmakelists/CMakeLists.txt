@@ -72,6 +72,7 @@ set (LEXERS
     ${PROJECT_SOURCE_DIR}/lexers/LexEiffel.cxx
     ${PROJECT_SOURCE_DIR}/lexers/LexErlang.cxx
     ${PROJECT_SOURCE_DIR}/lexers/LexErrorList.cxx
+    ${PROJECT_SOURCE_DIR}/lexers/LexEscSeq.cxx
     ${PROJECT_SOURCE_DIR}/lexers/LexFSharp.cxx
     ${PROJECT_SOURCE_DIR}/lexers/LexFlagship.cxx
     ${PROJECT_SOURCE_DIR}/lexers/LexForth.cxx
