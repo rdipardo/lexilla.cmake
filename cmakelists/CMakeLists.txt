@@ -300,5 +300,6 @@ endif()
 
 # build and run test applications
 add_subdirectory ("${PROJECT_SOURCE_DIR}/test")
+add_subdirectory ("${PROJECT_SOURCE_DIR}/test/Metadata")
 add_subdirectory ("${PROJECT_SOURCE_DIR}/examples/SimpleLexer")
 add_subdirectory ("${PROJECT_SOURCE_DIR}/examples/CheckLexilla")
