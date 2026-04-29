@@ -7,14 +7,14 @@ Checks: |
   cppcoreguidelines-*,
   -*avoid-c-arrays,
   -*avoid-magic-numbers,
+  -*avoid-unchecked-container-access,
   -*array-to-pointer-decay,
   -*constant-array-index,
   -*easily-swappable-parameters,
-  -*explicit-virtual-functions,
+  -*enum-size,
   -*owning-memory,
   -*signed-char-misuse,
-  -*switch-missing-default-case,
-  -*avoid-non-const-global-variables
+  -*switch-missing-default-case
 WarningsAsErrors: ''
 HeaderFilterRegex: ''
 UseColor : true
