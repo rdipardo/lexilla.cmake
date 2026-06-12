@@ -185,7 +185,10 @@ if(MSVC)
     set (SUBSYSTEM "")
     set (CETCOMPAT "")
 
-    if(("$ENV{PLATFORM}" MATCHES "ARM") OR ("$ENV{VSCMD_ARG_TGT_ARCH}" MATCHES "ARM"))
+    string(TOUPPER "$ENV{PLATFORM}" TARGET_PLATFORM)
+    string(TOUPPER "$ENV{VSCMD_ARG_TGT_ARCH}" VSCMD_TARGET_ARCH)
+
+    if(("${TARGET_PLATFORM}" MATCHES "ARM") OR ("${VSCMD_TARGET_ARCH}" MATCHES "ARM"))
       set (ARM64 "ON" CACHE INTERNAL "Target platform is arm64")
     endif()
 
