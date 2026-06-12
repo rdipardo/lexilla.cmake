@@ -14,7 +14,7 @@ else()
         -fvisibility=hidden -Wno-unused-parameter -Wpedantic --std=c++17)
 endif()
 
-if(CMAKE_HOST_WIN32)
+if(CMAKE_HOST_WIN32 OR "${CMAKE_SYSTEM_NAME}" MATCHES "Darwin")
     target_link_libraries (SimpleLexer PRIVATE lexilla-static)
 else()
     target_link_libraries (SimpleLexer PRIVATE lexilla)
