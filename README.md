@@ -59,7 +59,11 @@ From the [Developer Command Prompt][], run
 
 License
 =======
-The [License.txt][] file describes the conditions under which this software may
+Except where stated otherwise, all CMake files, build scripts and configurations in this repository
+are in the public domain under the terms of the [Creative Commons Zero v1.0 Universal](./LICENSE.txt)
+public license.
+
+Scintilla's [License.txt] file describes the conditions under which Scintilla, Lexilla and SciTE may
 be distributed.
 
 [lexilla]: https://github.com/ScintillaOrg/lexilla
