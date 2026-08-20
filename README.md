@@ -15,7 +15,7 @@ Building lexilla with CMake
 
 Clone the source tree and submodules:
 
-    git clone --recursive https://bitbucket.org/rdipardo/lexilla-dev.git
+    git clone --recursive https://github.com/rdipardo/lexilla.cmake.git
 
 Or, inside your local working tree:
 
