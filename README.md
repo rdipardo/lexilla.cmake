@@ -16,7 +16,7 @@ Building SciTE with lexilla
 
 Clone this repository and submodules:
 
-    git clone --recursive --branch scite-gtk3 https://bitbucket.org/rdipardo/lexilla-dev.git
+    git clone --recursive --branch scite-gtk3 https://github.com/rdipardo/lexilla.cmake.git
 
 Or, inside your local working tree:
 
