@@ -1,0 +1,123 @@
+# SPDX-FileCopyrightText: Public Domain
+# SPDX-License-Identifier: CC0-1.0
+
+name: Lexilla
+on:
+  pull_request:
+  push:
+    tags-ignore:
+      - '**'
+    branches-ignore:
+      - 'scite**'
+      - 'dependabot/**'
+
+permissions:
+  contents: read
+
+jobs:
+  gcc:
+    name: 'Test Lexilla with GCC,Clang'
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, macos-latest ]
+    runs-on: ${{ matrix.os }}
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # 7.0.1
+      with:
+        persist-credentials: false
+        submodules: recursive
+    - name: Restore build dependencies
+      id: gcc-build-deps
+      uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # 6.1.0
+      with:
+        path: ./lexilla/build
+        key: ${{ matrix.os }}-scintilla
+    - name: Test (${{ matrix.os }}-gcc-clang)
+      run: |-
+        ./build.sh SimpleLexer
+        ./build.sh CheckLexilla
+        ./build.sh metadata
+        ./build.sh TestLexers
+    - name: Save build dependencies
+      if: steps.gcc-build-deps.outputs.cache-hit != 'true'
+      uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # 6.1.0
+      with:
+        path: ./lexilla/build
+        key: ${{ steps.gcc-build-deps.outputs.cache-primary-key }}
+  msvc:
+    name: 'Test Lexilla with MSVC'
+    strategy:
+      matrix:
+        target: [ x86, x64 ]
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # 7.0.1
+      with:
+        persist-credentials: false
+        submodules: recursive
+    - name: Set up MSVC
+      uses: TheMrMilchmann/setup-msvc-dev@368ef7d1ee4d1171b31d4a7f67f4d954f903f5a9 # 4.1.0
+      with:
+        arch: ${{ matrix.target }}
+    - name: Restore build dependencies
+      id: msvc-build-deps
+      uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # 6.1.0
+      with:
+        path: ./lexilla/build-msvc
+        key: msvc-${{ matrix.target }}-scintilla
+    - name: Test (${{ matrix.target }}-msvc)
+      run: |-
+        .\build-nmake.bat SimpleLexer
+        .\build-nmake.bat CheckLexilla
+        .\build-nmake.bat metadata
+        .\build-nmake.bat TestLexers
+    - name: Save build dependencies
+      if: steps.msvc-build-deps.outputs.cache-hit != 'true'
+      uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # 6.1.0
+      with:
+        path: ./lexilla/build-msvc
+        key: ${{ steps.msvc-build-deps.outputs.cache-primary-key }}
+  mingw:
+    name: 'Test Lexilla with MinGW'
+    strategy:
+      matrix:
+        include:
+          - { msystem: mingw64, arch: x86_64 }
+          - { msystem: mingw32, arch: i686 }
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # 7.0.1
+      with:
+        persist-credentials: false
+        submodules: recursive
+    - name: Restore build dependencies
+      id: mingw-restore-deps
+      uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # 6.1.0
+      with:
+        path: ./lexilla/build-mingw
+        key: mingw-${{ matrix.msystem }}-${{ matrix.arch }}-scintilla
+    - name: Set up MinGW
+      uses: msys2/setup-msys2@66cd2cce69caa17b53920067426061ca1de3a884 # 2.32.0
+      with:
+        msystem: ${{ matrix.msystem }}
+        update: false
+        install: |
+          git
+          mingw-w64-${{ matrix.arch }}-toolchain
+          mingw-w64-${{ matrix.arch }}-cmake
+    - name: Test (${{ matrix.msystem }}-${{ matrix.arch }})
+      run: |-
+        ./build-mingw.bat SimpleLexer
+        ./build-mingw.bat CheckLexilla
+        ./build-mingw.bat metadata
+        ./build-mingw.bat TestLexers
+    - name: Save build dependencies
+      if: steps.mingw-restore-deps.outputs.cache-hit != 'true'
+      id: mingw-save-deps
+      uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # 6.1.0
+      with:
+        path: ./lexilla/build-mingw
+        key: ${{ steps.mingw-restore-deps.outputs.cache-primary-key }}
