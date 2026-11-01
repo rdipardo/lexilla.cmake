@@ -19,7 +19,7 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID MATCHES "Clang")
     find_program(VALGRIND "valgrind")
     target_compile_options (CheckLexilla PRIVATE -Wno-format)
     # https://github.com/google/sanitizers/issues/856#issuecomment-727254300
-    if(CMAKE_C_COMPILER_ID MATCHES "Clang" AND NOT VALGRIND)
+    if(NOT CMAKE_HOST_WIN32 AND CMAKE_C_COMPILER_ID MATCHES "Clang" AND NOT VALGRIND)
         target_compile_options (CheckLexilla PRIVATE -fsanitize=address)
         target_link_libraries (CheckLexilla PRIVATE -fsanitize=address)
     else()
