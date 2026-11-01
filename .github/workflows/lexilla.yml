@@ -82,7 +82,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - { msystem: mingw64, arch: x86_64 }
+          - { msystem: ucrt64, arch: ucrt-x86_64 }
           - { msystem: mingw32, arch: i686 }
     runs-on: windows-latest
     defaults:
@@ -100,9 +100,10 @@ jobs:
         path: ./lexilla/build-mingw
         key: mingw-${{ matrix.msystem }}-${{ matrix.arch }}-scintilla
     - name: Set up MinGW
-      uses: msys2/setup-msys2@66cd2cce69caa17b53920067426061ca1de3a884 # 2.32.0
+      uses: msys2/setup-msys2@ec48f7c5447b3140e2b088413ae3a55687bccb6e # 2.33.0
       with:
         msystem: ${{ matrix.msystem }}
+        suppress-deprecation-warnings: msystem-mingw32
         update: false
         install: |
           git
