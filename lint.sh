@@ -19,7 +19,7 @@ if [ "$(command -v clang)" ]; then
   echo "Linting with Clang-Tidy . . . ."
   set -x
   clang-tidy "lexilla/lexers/${FILE_NAME}" -- \
-    -I lexilla/include -I lexilla/access -I lexilla/lexlib -I scintilla/include -Wall -Wextra -pedantic --std=c++17 \
+    -I lexilla/include -I lexilla/access -I lexilla/lexlib -I scintilla/include -Wall -Wextra -pedantic --std=c++20 \
     -fsyntax-only -DNDEBUG -D_CRT_SECURE_NO_DEPRECATE=1
   set +x
 fi

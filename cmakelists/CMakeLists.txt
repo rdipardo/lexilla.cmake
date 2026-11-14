@@ -262,8 +262,8 @@ add_library (lexilla-static STATIC ${LEXLIB} ${LEXERS})
 if(MSVC)
     # flags that were set with `add_compile_options()` will propagate to every
     # build target; use `target_compile_options()` to control scope
-    target_compile_options (lexilla PRIVATE -EHsc -std:c++17)
-    target_compile_options (lexilla-static PRIVATE -EHsc -std:c++17)
+    target_compile_options (lexilla PRIVATE -EHsc -std:c++20)
+    target_compile_options (lexilla-static PRIVATE -EHsc -std:c++20)
     # See first "Note" at https://cmake.org/cmake/help/latest/command/target_link_options.html
     if(LEXILLA_STATIC)
         string(REPLACE ";" " " LIB_FLAGS "${LDFLAGS_BASE}")
@@ -277,9 +277,9 @@ if(MSVC)
     endif()
 else()
     target_compile_options (lexilla PRIVATE
-        -fvisibility=hidden -Wpedantic --std=c++17)
+        -fvisibility=hidden -Wpedantic --std=c++20)
     target_compile_options (lexilla-static PRIVATE
-        -fvisibility=hidden -Wpedantic --std=c++17)
+        -fvisibility=hidden -Wpedantic --std=c++20)
     if(MINGW)
         target_link_options (lexilla PRIVATE "-mwindows;-Wl,--kill-at")
     endif()
