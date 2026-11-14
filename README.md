@@ -12,7 +12,7 @@ Building SciTE with lexilla
 
 ## Testing locally
 
-**Note.** All compilers must support C++17 features
+**Note.** All compilers must support C++20 features
 
 Clone this repository and submodules:
 

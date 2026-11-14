@@ -28,7 +28,7 @@ else()
         target_link_libraries (TestLexers PRIVATE dl)
     endif()
 
-    if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    if(NOT CMAKE_HOST_WIN32 AND CMAKE_CXX_COMPILER_ID MATCHES "Clang")
         target_compile_options (TestLexers PRIVATE -fsanitize=address)
         target_link_libraries (TestLexers PRIVATE -fsanitize=address)
     endif()

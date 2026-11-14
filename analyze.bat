@@ -27,7 +27,7 @@ echo "Analyzing . . . ."
 echo.
 cd lexilla
 @echo on
-cl /analyze /I..\scintilla\include /Ilexlib /Iinclude /std:c++17 /nologo /Zi /TP /MP ^
+cl /analyze /I..\scintilla\include /Ilexlib /Iinclude /std:c++20 /nologo /Zi /TP /MP ^
   /Wall /wd4820 /EHsc /O1 /MT /DNDEBUG /GL ^
   /c "lexers\%FILE_NAME%" | findstr /C:"%FILTER%"
 @echo off

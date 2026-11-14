@@ -22,7 +22,7 @@ IF %ERRORLEVEL%==0 (
   @echo "Linting with Clang-Tidy . . . ."
   @echo.
   clang-tidy "lexilla/lexers/%FILE_NAME%" -- ^
-    -I lexilla/include -I lexilla/access -I lexilla/lexlib -I scintilla/include -Wall -Wextra -pedantic --std=c++17 ^
+    -I lexilla/include -I lexilla/access -I lexilla/lexlib -I scintilla/include -Wall -Wextra -pedantic --std=c++20 ^
     -fsyntax-only -DNDEBUG -D_CRT_SECURE_NO_DEPRECATE=1
 )
 ENDLOCAL
